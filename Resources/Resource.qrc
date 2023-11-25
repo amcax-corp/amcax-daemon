@@ -1,0 +1,29 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/SelectEdge.png</file>
+        <file>images/SelectFace.png</file>
+        <file>images/SelectObject.png</file>
+        <file>images/SelectVert.png</file>
+        <file>images/Cube.png</file>
+        <file>images/Cylinder.png</file>
+        <file>images/copy.png</file>
+        <file>images/Plane.png</file>
+        <file>images/UCSphere.png</file>
+        <file>images/ExtrudeFace.png</file>
+        <file>images/SingalMeshFace.png</file>
+        <file>images/Cone.png</file>
+        <file>images/Combine.png</file>
+        <file>images/SetCenter.png</file>
+        <file>images/WorkPlane.png</file>
+        <file>images/Torus.png</file>
+        <file>images/Chamfer.png</file>
+        <file>images/fillet.png</file>
+        <file>images/Circular.png</file>
+        <file>images/BoolCommon.png</file>
+        <file>images/BoolCut.png</file>
+        <file>images/BoolFuse.png</file>
+        <file>images/Prism.png</file>
+        <file>images/Polygon.png</file>
+        <file>images/logo.ico</file>
+    </qresource>
+</RCC>
