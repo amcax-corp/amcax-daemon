@@ -35,13 +35,20 @@ Please be informed that this project **does not** come with an AMCAX geometry ke
 
 Refer to figures below to locate the operation areas of AMCAX-Daemon
 
-<img width="613" alt="base_tab" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/31fe420b-c11a-41ad-8576-ae63361d2757">
+<p align="center">
+    <picture>
+      <img width="613" alt="base_tab" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/31fe420b-c11a-41ad-8576-ae63361d2757">
+    </picture>
+    <p align="center">Figure 1 Base Tab</p>
+</p>
 
- Figure 1 Base Tab
 
-<img width="613" alt="brep_tab" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/917655ba-b754-40ac-8217-2ee0d2bb115e">
-
- Figure 2 BRep Tab
+<p align="center">
+    <picture>
+      <img width="613" alt="brep_tab" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/917655ba-b754-40ac-8217-2ee0d2bb115e">
+    </picture>
+    <p align="center">Figure 2 BRep Tab</p>
+</p>
 
 ### Create / Delete / Move Geometry Objects
 
