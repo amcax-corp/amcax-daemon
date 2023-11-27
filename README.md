@@ -7,23 +7,27 @@ AMCAX-Daemon showcases some basic functions that AMCAX geometry kernel supports.
 Please be informed that this project **does not** come with an AMCAX geometry kernel license, you will need to apply the license on your own.
 
 ## Contents
-- [How to Use](#how-to-use)
-  * [User Interfaces](#user-interfaces)
-  * [Create / Delete / Move Geometry Objects](#create--delete--move-geometry-objects)
-  * [Modify Geometry Objects](#modify-geometry-objects)
-  * [Persistent Geometry Objects](#persistent-geomeetry-objects)
-  * [Auxillary Functions](#auxillary-functions)
-- [How to Build](#how-to-build)
-  * [Prerequisite](#prerequisite)
-  * [Steps](#steps)
-- [Tutorial](#tutorial)
-  * [Code Structure Overview](#code-structure-overview)
-  * [Create Geometry Objects](#create-geometry-objects)
-  * [Modify Geometry Objects](#modify-geometry-objects-1)
-  * [Persistent Geometry Objects](#persistent-geomeetry-objects-1)
-- [Known Issues](#known-issues)
-- [License](#license)
-- [Contact Us](#contact-us)
+
+- [AMCAX-Daemon Introduction](#amcax-daemon-introduction)
+      - [Version 1.0.0](#version-100)
+  - [Contents](#contents)
+  - [How to Use](#how-to-use)
+    - [User Interfaces](#user-interfaces)
+    - [Create / Delete / Move Geometry Objects](#create--delete--move-geometry-objects)
+    - [Modify Geometry Objects](#modify-geometry-objects)
+    - [Persistent Geometry Objects](#persistent-geometry-objects)
+    - [Auxillary Functions](#auxillary-functions)
+  - [How to Build](#how-to-build)
+    - [Prerequisite](#prerequisite)
+    - [Steps](#steps)
+  - [Tutorial](#tutorial)
+    - [Code Structure Overview](#code-structure-overview)
+    - [Create Geometry Objects](#create-geometry-objects)
+    - [Modify Geometry Objects](#modify-geometry-objects-1)
+    - [Persistent Geometry Objects](#persistent-geometry-objects-1)
+    - [Known Issues](#known-issues)
+    - [License](#license)
+    - [Contact Us](#contact-us)
 
 ## How to Use
 
@@ -44,14 +48,11 @@ Refer to figures below to locate the operation areas of AMCAX-Daemon
 - To create a new geometry object
 
     Activate **BRep** tab and choose the type of object, and then:
-    *   For face type: Click on the render area to specify multiple points in sequence, once you are done, press "Enter".
-
-    *   For other types: A dialog will pop up, specify the geometry object's parameters in the dialog and click "OK"
+  - For face type: Click on the render area to specify multiple points in sequence, once you are done, press "Enter".
+  - For other types: A dialog will pop up, specify the geometry object's parameters in the dialog and click "OK"
 
 - To delete objects, select the objects and press "Delete" key.
-  
 - To move objects, select the objects, hold the left mouse button, move to the target point, then release the button
-  
 
 ### Modify Geometry Objects
 
@@ -59,38 +60,36 @@ Refer to figures below to locate the operation areas of AMCAX-Daemon
 
 ### Persistent Geometry Objects
 
-You may either select some objects and save them as file using "Export Selected" function, or save all the objects in your working space using "Save" function. 
-The objects will be saved in \*.abr file, which is an AMCAX proprietary format. 
-You can later load the objects from \*.abr file into your working space.
+You may either select some objects and save them as file using "Export Selected" function, or save all the objects in your working space using "Save" function.
+The objects will be saved in `*.abr` file, which is an AMCAX proprietary format.
+You can later load the objects from `*.abr` file into your working space.
 All the related functions are availabe under the "File"menu.
 
 ### Auxillary Functions
 
 - Change viewpoint
 
-    * Rotate: Hold the right mouse button and move to adjust
-
-    * Pan: Press left/right/up/down key
+  - Rotate: Hold the right mouse button and move to adjust
+  - Pan: Press left/right/up/down key
 
 - Undo/Redo
-  
+
   Currently only support undo/redo create/delete operation. New features are coming soon.
-  
 
 ## How to Build
 
 ### Prerequisite
 
 - CMake 3.2.7 +
-  
 - Visual Studio 2019
-    * Extension: Qt VS Tool (Qt Versions Configured)
-  
+
+  - Extension: Qt VS Tool (Qt Versions Configured)
+
 - QT 5.15.2
-    * Add qmake path (eg. D:\Qt\5.15.2\msvc2019_64\bin) in to PATH environment variable. 
-  
-- [AMCAX Kernal](https://amcax.net/) 3.2.3
-  
+
+  - Add qmake path (eg. D:\Qt\5.15.2\msvc2019_64\bin) in to PATH environment variable.
+
+- [AMCAX Kernel](https://amcax.net/) 3.2.3
 
 ### Steps
 
@@ -100,32 +99,31 @@ All the related functions are availabe under the "File"menu.
 
     For example:
 
-    d:\\qt\\5.15.2\\msvc2019\_64\\lib\\cmake\\
+    `d:\\qt\\5.15.2\\msvc2019\_64\\lib\\cmake\\`
 
 - Add AMCAX Kernel library
 
     Unzip the library and put it under the root folder of this project. The folder structure should look like this:
 
-```
-    Amcax-Daemon
-         |----------AMCAX
-         |-------------|-------include
-         |-------------|-------lib
-         |-------------|-------bin
-         |----------Resources
-         |----------Src
-         |----------...
-         |----------CMakeLists.txt
-```
+  ```text
+      Amcax-Daemon
+          |----------AMCAX
+          |-------------|-------include
+          |-------------|-------lib
+          |-------------|-------bin
+          |----------Resources
+          |----------Src
+          |----------...
+          |----------CMakeLists.txt
+  ```
 
 - Open "Visual Studio 2019" and choose "continue without code", navigate to "File" -> "Open" -> "CMake..." and then open the "CMakeLists.txt" file of this project.
-  
+
 - Build
-  
+
 - Copy the folders ("Debug" & "Release") in AMCAX/bin into your project's output folder.
-  
+
 - Run AmcaxDaemonCore.exe and have fun!
-  
 
 ## Tutorial
 
@@ -135,17 +133,16 @@ The code structure for AMCAX daemon looks like below.
 
 <img width="613" alt="code_structure" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/9c2f9a30-537d-4fe5-9c31-3546455b8392">
 
+It"s built upon AMCAX Kernel SDK and OpenGL. From bottom to top:
 
-It"s built upon AMCAX Kernel SDK and OpenGL. From bottom to up:
+- "Operation"folder includes helper classes that can call kernel SDK to create the underlying geometry objects, "ObjectDraw" folder includes classes that are used to draw a target object using OpenGL;
 
-* "Operation"folder includes helper classes that can call kernel SDK to create the underlying geometry objects, "ObjectDraw" folder includes classes that are used to draw a target object using OpenGL;
+- "Object"folder includes the wrapper classes for the kernel's underlying geometry objects, these wrapper classes leverage "Operation" & "ObjectDraw" to support object operation and rendering.
 
-* "Object"folder includes the wrapper classes for the kernel's underlying geometry objects, these wrapper classes leverage "Operation" & "ObjectDraw" to support object operation and rendering.
+- "Core"folder includes a "DataManager" which manages all the objects that are currently created, "UnRedoHandler" which supports undo/redo operations, "ACAMFile" which supports object persistence to file.
 
-* "Core"folder includes a "DataManager" which manages all the objects that are currently created, "UnRedoHandler" which supports undo/redo operations, "ACAMFile" which supports object persistence to file.
+- "Windows" folder contains classes for user interaction and currently leverages libqglviewer for camera/projection related coordinate axes transform.
 
-* "Windows" folder contains classes for user interaction and currently leverages libqglviewer for camera/projection related coordinate axes transform.
-  
 ### Create Geometry Objects
 
 Using AMCAX Kernel to create an object is as simple as:
@@ -156,7 +153,7 @@ Using AMCAX Kernel to create an object is as simple as:
     std::list<AMCAX::TopoShape> edges;
     for (int i = 1; i < point_list.size(); ++i)
     {
-       edges.push_back(AMCAX::MakeEdge(point_list[i-1], point_list[i]));
+    edges.push_back(AMCAX::MakeEdge(point_list[i-1], point_list[i]));
     }
     edges.push_back(AMCAX::MakeEdge(point_list.back(), (point_list.front())));
 
@@ -180,7 +177,7 @@ An example of using AMCAX kernel to fuse multiple objects can be found in the cl
     }
 ```
 
-There're more can be found in the files in "Operation" folder.
+More examples can be found in [Operation](./Src/Operation) folder.
 
 ### Persistent Geometry Objects
 
@@ -204,7 +201,7 @@ The basic idea is to use AMCAD::TopoCompound and AMCAD::TopoBuilder to compound 
     AMCAX::ShapeTool::Write(comp, fileName);
 ```
 
-Refer to "ACAMCoreFile.cpp" for more details.
+Refer to [ACAMCoreFile.cpp](./src/core/ACAMCoreFile.cpp) for more details.
 
 ### Known Issues
 
@@ -219,7 +216,6 @@ AMCAX-Daemon uses dual licensing: it is freely available under the terms of the 
 Welcome to your feedback and contributions!
 You can create Git issues here or join our [community](https://bbs.amcax.net/) (Chinese) to further participate into this project.
 
-=======================================================
+---
 
 **Copyright © 2023 Hefei Jiushao Intelligent Technology Co., Ltd. All rights reserved.**
-
