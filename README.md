@@ -1,6 +1,6 @@
 # AMCAX-Daemon Introduction
 
-#### Version 1.0.0
+**Version 1.0.0**
 
 AMCAX-Daemon showcases some basic functions that AMCAX geometry kernel supports. There are more functions that can be supported by the kernel but currently not used by Daemon.
 
@@ -9,7 +9,6 @@ Please be informed that this project **does not** come with an AMCAX geometry ke
 ## Contents
 
 - [AMCAX-Daemon Introduction](#amcax-daemon-introduction)
-      - [Version 1.0.0](#version-100)
   - [Contents](#contents)
   - [How to Use](#how-to-use)
     - [User Interfaces](#user-interfaces)
