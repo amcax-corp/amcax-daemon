@@ -48,22 +48,22 @@ Refer to figures below to locate the operation areas of AMCAX-Daemon
 - To create a new geometry object
 
     Activate **BRep** tab and choose the type of object, and then:
-  - For face type: Click on the render area to specify multiple points in sequence, once you are done, press "Enter".
-  - For other types: A dialog will pop up, specify the geometry object's parameters in the dialog and click "OK"
+  - For face type: Click on the render area to specify multiple points in sequence, once you are done, press `Enter`.
+  - For other types: A dialog will pop up, specify the geometry object's parameters in the dialog and click `OK`
 
-- To delete objects, select the objects and press "Delete" key.
+- To delete objects, select the objects and press `Delete` key.
 - To move objects, select the objects, hold the left mouse button, move to the target point, then release the button
 
 ### Modify Geometry Objects
 
-- To edit objects, on the leftside, there's an edit toolbar, choose the kind of operation from the toolbar, pick up objects in sequence to operate on, and then press "Enter" key to apply the operation on selected objects.
+- To edit objects, on the leftside, there's an edit toolbar, choose the kind of operation from the toolbar, pick up objects in sequence to operate on, and then press `Enter` key to apply the operation on selected objects.
 
 ### Persistent Geometry Objects
 
-You may either select some objects and save them as file using "Export Selected" function, or save all the objects in your working space using "Save" function.
+You may either select some objects and save them as file using `Export Selected` function, or save all the objects in your working space using `Save` function.
 The objects will be saved in `*.abr` file, which is an AMCAX proprietary format.
 You can later load the objects from `*.abr` file into your working space.
-All the related functions are availabe under the "File"menu.
+All the related functions are availabe under the `File` menu.
 
 ### Auxillary Functions
 
@@ -117,11 +117,11 @@ All the related functions are availabe under the "File"menu.
           |----------CMakeLists.txt
   ```
 
-- Open "Visual Studio 2019" and choose "continue without code", navigate to "File" -> "Open" -> "CMake..." and then open the "CMakeLists.txt" file of this project.
+- Open "Visual Studio 2019" and choose `continue without code`, navigate to `File` -> `Open` -> `CMake...` and then open the `CMakeLists.txt` file of this project.
 
 - Build
 
-- Copy the folders ("Debug" & "Release") in AMCAX/bin into your project's output folder.
+- Copy the folders (`Debug & Release`) in AMCAX/bin into your project's output folder.
 
 - Run AmcaxDaemonCore.exe and have fun!
 
@@ -133,15 +133,15 @@ The code structure for AMCAX daemon looks like below.
 
 <img width="613" alt="code_structure" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/9c2f9a30-537d-4fe5-9c31-3546455b8392">
 
-It"s built upon AMCAX Kernel SDK and OpenGL. From bottom to top:
+It's built upon AMCAX Kernel SDK and OpenGL. From bottom to top:
 
-- "Operation"folder includes helper classes that can call kernel SDK to create the underlying geometry objects, "ObjectDraw" folder includes classes that are used to draw a target object using OpenGL;
+- `Operation` folder includes helper classes that can call kernel SDK to create the underlying geometry objects, `ObjectDraw` folder includes classes that are used to draw a target object using OpenGL;
 
-- "Object"folder includes the wrapper classes for the kernel's underlying geometry objects, these wrapper classes leverage "Operation" & "ObjectDraw" to support object operation and rendering.
+- `Object` folder includes the wrapper classes for the kernel's underlying geometry objects, these wrapper classes leverage `Operation & ObjectDraw` to support object operation and rendering.
 
-- "Core"folder includes a "DataManager" which manages all the objects that are currently created, "UnRedoHandler" which supports undo/redo operations, "ACAMFile" which supports object persistence to file.
+- `Core` folder includes a `DataManager` which manages all the objects that are currently created, `UnRedoHandler` which supports undo/redo operations, `ACAMFile` which supports object persistence to file.
 
-- "Windows" folder contains classes for user interaction and currently leverages libqglviewer for camera/projection related coordinate axes transform.
+- `Windows` folder contains classes for user interaction and currently leverages libqglviewer for camera/projection related coordinate axes transform.
 
 ### Create Geometry Objects
 
@@ -205,7 +205,7 @@ Refer to [ACAMCoreFile.cpp](./src/core/ACAMCoreFile.cpp) for more details.
 
 ### Known Issues
 
-Undo/Redo is not currently supported for actions beyond creating/deleting objects. So if you create an object, move it and then delete it, and "undo" the delete operation, the restored object will not be placed at the moved position.
+Undo/Redo is not currently supported for actions beyond creating/deleting objects. So if you create an object, move it and then delete it, and `undo` the delete operation, the restored object will not be placed at the moved position.
 
 ### License
 
