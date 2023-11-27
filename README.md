@@ -135,13 +135,13 @@ The code structure for AMCAX daemon looks like below.
 
 It's built upon AMCAX Kernel SDK and OpenGL. From bottom to top:
 
-- `Operation` folder includes helper classes that can call kernel SDK to create the underlying geometry objects, `ObjectDraw` folder includes classes that are used to draw a target object using OpenGL;
+- [`Operation`](./Src/Operation/) folder includes helper classes that can call kernel SDK to create the underlying geometry objects, `ObjectDraw` folder includes classes that are used to draw a target object using OpenGL;
 
-- `Object` folder includes the wrapper classes for the kernel's underlying geometry objects, these wrapper classes leverage `Operation & ObjectDraw` to support object operation and rendering.
+- [`Object`](./Src/Object/) folder includes the wrapper classes for the kernel's underlying geometry objects, these wrapper classes leverage `Operation & ObjectDraw` to support object operation and rendering.
 
-- `Core` folder includes a `DataManager` which manages all the objects that are currently created, `UnRedoHandler` which supports undo/redo operations, `ACAMFile` which supports object persistence to file.
+- [`Core`](./Src/Core/) folder includes a `DataManager` which manages all the objects that are currently created, `UnRedoHandler` which supports undo/redo operations, `ACAMFile` which supports object persistence to file.
 
-- `Windows` folder contains classes for user interaction and currently leverages libqglviewer for camera/projection related coordinate axes transform.
+- [`Windows`](./Src/Windows/) folder contains classes for user interaction and currently leverages libqglviewer for camera/projection related coordinate axes transform.
 
 ### Create Geometry Objects
 
@@ -205,7 +205,7 @@ Refer to [ACAMCoreFile.cpp](./src/core/ACAMCoreFile.cpp) for more details.
 
 ### Known Issues
 
-Undo/Redo is not currently supported for actions beyond creating/deleting objects. So if you create an object, move it and then delete it, and `undo` the delete operation, the restored object will not be placed at the moved position.
+`Undo/Redo` is not currently supported for actions beyond creating/deleting objects. So if you create an object, move it and then delete it, and `undo` the delete operation, the restored object will not be placed at the moved position.
 
 ### License
 
