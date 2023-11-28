@@ -502,3 +502,4 @@ FodyWeavers.xsd
 
 # build helper script
 *.bat
+JenkinsFile
