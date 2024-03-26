@@ -51,6 +51,9 @@ RenderViewer::RenderViewer(QWidget* parent, Qt::WindowFlags flags) :
     dialog = new ParamDialog(parent);
     // TODO: connect
     connect(dialog, &ParamDialog::finished, this, &RenderViewer::disconnectDialog);
+    // Possibly a bug in Qt5 MSVC, which prevents the "new" style connect() from working.
+    //connect(this, &RenderViewer::selectedModelChanged, this, &RenderViewer::selectCheckChanged);
+    connect(this, SIGNAL(selectedModelChanged()), this, SLOT(selectCheckChanged()));
     
     initBRep();
 }

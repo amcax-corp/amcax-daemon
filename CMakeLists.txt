@@ -26,14 +26,9 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
  
 #find depended qt libraries 
-find_package(Qt5Widgets REQUIRED)  
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5OpenGL REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Core Gui OpenGL REQUIRED)
 
 SET(AMCAX_PATH "AMCAX/include")
-SET(AMCAX_LIB_debug "AMCAX/lib/Debug")
-SET(AMCAX_LIB_release "AMCAX/lib/Release")
 
 if(DEFINED CMAKE_BUILD_TYPE) 
     message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
@@ -47,12 +42,15 @@ endif()
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug") 
     SET(AMCAX_DLL_PATH "AMCAX/bin/Debug")
+    SET(AMCAX_LIB_PATH "AMCAX/lib/Debug")
 else()
     SET(AMCAX_DLL_PATH "AMCAX/bin/Release")
+    SET(AMCAX_LIB_PATH "AMCAX/lib/Release")
 endif()
 
 
 include_directories(${AMCAX_PATH})
+
 
 qt5_add_resources(QRC_FILES Resources/Resource.qrc)
 
@@ -116,11 +114,9 @@ target_link_libraries(${PROJECT_NAME}
     glu32
 )
 
-FIND_LIBRARY(AMCAXCommon_release AMCAXCommon ${AMCAX_LIB_release})
-FIND_LIBRARY(AMCAXCommon_debug AMCAXCommon ${AMCAX_LIB_debug})
-FIND_LIBRARY(AMCAXPart_release AMCAXPart ${AMCAX_LIB_release})
-FIND_LIBRARY(AMCAXPart_debug AMCAXPart ${AMCAX_LIB_debug})
-
+FIND_LIBRARY(AMCAXCommon "AMCAXCommon" ${AMCAX_LIB_PATH})
+FIND_LIBRARY(AMCAXPart "AMCAXPart" ${AMCAX_LIB_PATH})
+FIND_LIBRARY(AMCAXStep "AMCAXStep" ${AMCAX_LIB_PATH})
 
 message("CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}")
 
@@ -137,6 +133,5 @@ endforeach()
 
 
 target_link_libraries(${PROJECT_NAME} 
-        debug ${AMCAXCommon_debug} ${AMCAXPart_debug} 
-    optimized ${AMCAXCommon_release} ${AMCAXPart_release} 
+        ${AMCAXCommon} ${AMCAXPart} ${AMCAXStep}
 )

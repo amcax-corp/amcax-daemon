@@ -239,9 +239,11 @@ private:
     ParamDialog *dialog;
 	acamcad::Record record;
 
-private:
+private slots:
 	void selectCheckChanged();
-    void BaseObjectOperation(const SelectModel& s_model, 
+
+private:
+  void BaseObjectOperation(const SelectModel &s_model, 
 		const OperationType& op_type, const MeshOperationType mesh_operate_type);
     void BRepObjectOperation(const SelectModel& s_model,
         const OperationType& op_type, const MeshOperationType mesh_operate_type);

@@ -40,7 +40,6 @@ ACAMWindow::ACAMWindow(QWidget *parent)
     this->setWindowIcon(QIcon(":images/images/logo.ico"));
 
     initCoreAndViewer();
-    connect(render_viewer_, &RenderViewer::selectedModelChanged, render_viewer_, &RenderViewer::selectCheckChanged);
 
     createAction();
     createMenus();

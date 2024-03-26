@@ -481,10 +481,10 @@ FodyWeavers.xsd
 
 # VS Code files for those working on multiple tools
 .vscode/*
-#!.vscode/settings.json
-#!.vscode/tasks.json
-#!.vscode/launch.json
-#!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 *.code-workspace
 
 # Local History for Visual Studio Code
@@ -500,6 +500,12 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# build helper script
+# bat file
 *.bat
-JenkinsFile
+
+# AMCAX Kernel
+AMCAX/
+AMCAXStep/
+
+# Visual Studio CMake
+CMakeUserPresets.json

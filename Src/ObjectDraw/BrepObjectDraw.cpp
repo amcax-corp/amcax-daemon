@@ -24,6 +24,8 @@
 #include <common/VectorT.hpp>
 
 #include <modeling/MakeShapeTool.hpp>
+#include <geometry/Geom3Curve.hpp>
+#include <geometry/Geom3BSplineCurve.hpp>
 
 acamcad::BRepObjectDraw::BRepObjectDraw(BaseObject* object)
 {
@@ -139,6 +141,7 @@ void acamcad::BRepObjectDraw::drawForSelect() const
     glEnable(GL_LIGHTING);
     glShadeModel(GL_FLAT);
     draw_mesh_solidflat(false);
+    draw_curve();
     glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_LIGHTING);
 }
@@ -203,14 +206,44 @@ void acamcad::BRepObjectDraw::updatedrawState()
         AMCAX::TopoLocation loc;
         AMCAX::TopoTool::PolygonOnTriangulation(e, edgeInfos_[i].polyMesh, edgeInfos_[i].triMesh, loc);
         edgeInfos_[i].loc = loc;
+
+        //step curve
+        if (edgeInfos_[i].polyMesh == nullptr)
+        {
+            double ef, el;
+            std::shared_ptr<AMCAX::Geom3Curve> curve = AMCAX::TopoTool::Curve(e, ef, el);
+            if (curve == nullptr)
+                continue;
+            int nPoints = 10;
+            if (curve->Type() == AMCAX::CurveType::Line)
+            {
+                nPoints = 2;
+            }
+            else if (curve->Type() == AMCAX::CurveType::BSplineCurve)
+            {
+                std::shared_ptr<AMCAX::Geom3BSplineCurve> spline = std::dynamic_pointer_cast<AMCAX::Geom3BSplineCurve>(curve);
+                nPoints = spline->NKnots() * spline->Degree() * 10;
+            }
+
+            curvePointsInfo_.resize(nPoints);
+            for (int j = 0; j < nPoints; j++)
+            {
+                double t = (double)j / ((double)nPoints - 1);
+                AMCAX::Point3 point = curve->Value((1 - t) * ef + t * el);
+                curvePointsInfo_[j] = point;
+            }
+        }
     }
 
     int vNum = 0;
     int fNum = 0;
     for (int i = 0; i < faceInfos_.size(); ++i)
     {
-        vNum += faceInfos_[i].triMesh->NVertices();
-        fNum += faceInfos_[i].triMesh->NTriangles();
+        if (faceInfos_[i].triMesh != nullptr)
+        {
+            vNum += faceInfos_[i].triMesh->NVertices();
+            fNum += faceInfos_[i].triMesh->NTriangles();
+        }
     }
 
     vert_position_.resize(vNum * 3);
@@ -224,11 +257,24 @@ void acamcad::BRepObjectDraw::updatedrawState()
         AMCAX::Transformation3 tr = faceInfos_[i].loc.Transformation();
         AMCAX::OrientationType fOri = faceInfos_[i].ori;
 
+        AMCAX::Matrix3 mat = tr.HVectorialPart();
+        mat.Invert().Transpose();
+        AMCAX::Transformation3 trn;
+        trn.SetValues(mat(0, 0), mat(0, 1), mat(0, 2), 0.0, 
+                      mat(1, 0), mat(1, 1), mat(1, 2), 0.0, 
+                      mat(2, 0), mat(2, 1), mat(2, 2), 0.0);
+
+        if (mesh == nullptr)
+        {
+            continue;
+        }
+
         for (int vid = 0; vid < mesh->NVertices(); ++vid)
         {
             const AMCAX::Point3& p = mesh->Vertex(vid).Transformed(tr);
-            const AMCAX::Direction3& n = mesh->Normal(vid).Transformed(tr);
+            AMCAX::Direction3 &n = mesh->Normal(vid).Transformed(trn);
 
+            if (fOri == AMCAX::OrientationType::Reversed) { n = n.Reversed(); }
 
             int id = vid + vOffset;
             vert_position_[3 * id + 0] = p.X(); vert_position_[3 * id + 1] = p.Y(); vert_position_[3 * id + 2] = p.Z();
@@ -252,6 +298,10 @@ void acamcad::BRepObjectDraw::updatedrawState()
         std::shared_ptr<AMCAX::TriangularMesh> mesh = edgeInfos_[i].triMesh;
         std::shared_ptr<AMCAX::PolygonOnTriangularMesh> poly = edgeInfos_[i].polyMesh;
         AMCAX::Transformation3 tr = edgeInfos_[i].loc.Transformation();
+        if (mesh == nullptr || poly == nullptr)
+        {
+            continue;
+        }
 
         for (int pid = 0; pid < poly->NVertices(); ++pid)
         {
@@ -349,6 +399,11 @@ void acamcad::BRepObjectDraw::draw_mesh_wireframe(bool is_selected, bool showPoi
         std::shared_ptr<AMCAX::TriangularMesh> mesh = edgeInfos_[i].triMesh;
         std::shared_ptr<AMCAX::PolygonOnTriangularMesh> poly = edgeInfos_[i].polyMesh;
         AMCAX::Transformation3 tr = edgeInfos_[i].loc.Transformation();
+        if (mesh == nullptr || poly == nullptr)
+        {
+            draw_curve();
+            continue;
+        }
 
         for (int pid = 1; pid < poly->NVertices(); ++pid)
         {
@@ -372,6 +427,10 @@ void acamcad::BRepObjectDraw::draw_mesh_solidflat(bool is_selected) const
         std::shared_ptr<AMCAX::TriangularMesh> mesh = faceInfos_[i].triMesh;
         AMCAX::Transformation3 tr = faceInfos_[i].loc.Transformation();
         AMCAX::OrientationType fOri = faceInfos_[i].ori;
+        if (mesh == nullptr )
+        {
+            continue;
+        }
 
         for (int fid = 0; fid < mesh->NTriangles(); ++fid)
         {
@@ -454,3 +513,16 @@ void acamcad::BRepObjectDraw::draw_mesh_smooth(bool is_selected) const
 
     glDisableClientState(GL_VERTEX_ARRAY);
 }
+
+void acamcad::BRepObjectDraw::draw_curve() const
+{
+    glLineWidth(1.2);
+
+    glBegin(GL_LINE_STRIP);
+    for (int i = 0; i < curvePointsInfo_.size(); i++)
+    {
+        glVertex3f(curvePointsInfo_[i].X(), curvePointsInfo_[i].Y(), curvePointsInfo_[i].Z());
+    }
+    glEnd();
+}
+
