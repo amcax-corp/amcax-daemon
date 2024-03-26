@@ -51,6 +51,8 @@ namespace acamcad
 
         void draw_mesh_smooth(bool is_selected) const;
 
+        void draw_curve() const;
+
     private:
         BRepObject* brep_object_;
 
@@ -73,6 +75,7 @@ namespace acamcad
         };
         std::vector<FaceInfo> faceInfos_;
         std::vector<EdgeInfo> edgeInfos_;
+        std::vector<AMCAX::Point3> curvePointsInfo_;
 
     };
 } //namespace acamcad

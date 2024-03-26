@@ -2,7 +2,7 @@
 [![en-us](https://img.shields.io/badge/en-us-yellow.svg)](https://github.com/amcax-kernel/amcax-daemon/blob/main/README.md)
 [![中文-简体](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-%E7%AE%80%E4%BD%93-red.svg)](https://github.com/amcax-kernel/amcax-daemon/blob/main/README.zh_cn.md)
 
-**Version 1.0.0**
+**Version 1.0.1**
 
 AMCAX-Daemon showcases some basic functions that AMCAX geometry kernel supports. There are more functions that can be supported by the kernel but currently not used by Daemon.
 
@@ -68,8 +68,8 @@ Refer to figures below to locate the operation areas of AMCAX-Daemon
 ### Persistent Geometry Objects
 
 You may either select some objects and save them as file using `Export Selected` function, or save all the objects in your working space using `Save` function. 
-The objects will be saved in `*.abr` file, which is an AMCAX proprietary format. 
-You can later load the objects from `*.abr` file into your working space.
+You can choose to either save the objects `*.abr` file, which is an AMCAX proprietary format; or save the objects as standard STEP file. 
+You can later load the objects from saved file into your working space.
 All the related functions are availabe under the `File` menu.
 
 ### Auxillary Functions
@@ -97,7 +97,7 @@ All the related functions are availabe under the `File` menu.
 - QT 5.15.2
     - Add qmake path (eg. D:\Qt\5.15.2\msvc2019_64\bin) in to PATH environment variable. 
   
-- [AMCAX Kernal](https://amcax.net/) 3.2.3
+- [AMCAX Kernal](https://amcax.net/) 3.5.0
   
 
 ### Steps
@@ -222,7 +222,8 @@ Refer to [`ACAMCoreFile.cpp`](./Src/Core/ACAMCoreFile.cpp) for more details.
 ## Known Issues
 
 - `Undo/Redo` is not currently supported for actions beyond creating/deleting objects. So if you create an object, move it and then delete it, and `undo` the delete operation, the restored object will not be placed at the moved position.
-- Requires corresponding Debug/Release AMCAX kernel library when building, i.e, if you are buidling the AMCAX-Daemon debug version, you would need a debug version AMCAX kernel library. 
+- Requires corresponding Debug/Release AMCAX kernel library when building, i.e, if you are building the AMCAX-Daemon debug version, you would need a debug version AMCAX kernel library. However, you could still debug AMCAX-Daemon code with the newly updated CMakeSettings which sets the configuration type as `RelWithDebInfo`. 
+- When import STEP file, the viewport needs manual zoom to make the objects show normally.
 
 ## License
 
