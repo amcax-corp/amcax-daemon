@@ -1,17 +1,17 @@
 /* ===================================================================
-* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd. 
+* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd.
 * All rights reserved.
 *
-* This software is licensed under the GNU Affero General Public License 
-* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this 
+* This software is licensed under the GNU Affero General Public License
+* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this
 * software under the terms of either license.
 *
-* For more information about the AGPLv3.0 license, please visit: 
+* For more information about the AGPLv3.0 license, please visit:
 * https://www.gnu.org/licenses/agpl-3.0.html
-* For licensing inquiries or to obtain a commercial license, please 
+* For licensing inquiries or to obtain a commercial license, please
 * contact Hefei Jiushao Intelligent Technology Co., Ltd.
 * ===================================================================
-* Author: 
+* Author:
 */
 #include "UndoRedoHandler.h"
 #include "../Object/BRepObject.h"
@@ -22,24 +22,26 @@
 
 namespace acamcad {
 
-	ContextHolder::ContextHolder(int opId): operationId_(opId), objectPid_(-1) {
-		backshape_.Nullify(); 
+	ContextHolder::ContextHolder(int opId) : operationId_(opId), objectPid_(-1) {
+		backshape_.Nullify();
 	}
 
-	ContextHolder::ContextHolder(int opId, BaseObject* object, ActionType actionType): operationId_(opId), objectPid_(-1) {
+	ContextHolder::ContextHolder(int opId, BaseObject* object, ActionType actionType) : operationId_(opId), objectPid_(-1) {
 		if (nullptr == object || object->dataType() != DataType::BREP_TYPE) {
-			return; 
+			return;
 		}
 
 		objectPid_ = object->persistentId();
 
-		BRepObject* object_old = dynamic_cast<BRepObject*> (object);
-		backshape_ = AMCAX::CopyShape(object_old->getShape());
+		AdapterObject* object_old = dynamic_cast<AdapterObject*>(object);
+
+		//BRepObject* object_old = dynamic_cast<BRepObject*> (object);
+		backshape_ = AMCAX::CopyShape(object_old->bRep->getShape());
 	}
 
 	ContextHolder::~ContextHolder()
 	{
-		backshape_.Nullify(); 
+		backshape_.Nullify();
 	}
 
 
@@ -69,27 +71,27 @@ namespace acamcad {
 	void UndoRedoHandler::recordOperation(BaseObject* object, ActionType actionType, bool incSeq)
 	{
 		if (incSeq) {
-			operation_seq_++; 
+			operation_seq_++;
 		}
 
-		ContextHolder* holder = new ContextHolder(operation_seq_, object, actionType); 
-		OperateContext context = std::make_pair(actionType, holder); 
-		undo_queue_.push_back(context); 
+		ContextHolder* holder = new ContextHolder(operation_seq_, object, actionType);
+		OperateContext context = std::make_pair(actionType, holder);
+		undo_queue_.push_back(context);
 
 		if (undo_queue_.size() >= max_queue_size_) {
 			OperateContext item = undo_queue_.back();
 			undo_queue_.pop_front();
-			releaseQueueItem(item); 
+			releaseQueueItem(item);
 		}
 	}
 
 	void UndoRedoHandler::revokeOp(const OperateContext& context)
 	{
 		ActionType op_type = context.first;
-		ContextHolder* p_holder = context.second; 
+		ContextHolder* p_holder = context.second;
 
 		if (p_holder == nullptr) {
-			return; 
+			return;
 		}
 
 		if (op_type == ActionType::AddObject) {		//revoke add, need to find the object in data manager and delete it. 
@@ -98,9 +100,9 @@ namespace acamcad {
 			BaseObject* obj = dataManager_->getObjectByPersistentID(p_holder->getObjectPid());
 			if (obj == nullptr) {
 				//Object gone, cannot revoke add operation; 
-				return; 
+				return;
 			}
-			dataManager_->deleteObject(obj); 
+			//dataManager_->deleteObject(obj);
 		}
 		else if (op_type == ActionType::DeleteObject) { // revoke delete, need to restore the object from shape and add into data manager; and add another copy
 			std::cout << "undo delete object" << std::endl;
@@ -110,11 +112,15 @@ namespace acamcad {
 				return;			//Object already exists, no need to revoke delete now. 
 			}
 			//ONLY support bRep object now; 
-			BRepObject* brep_obj = new BRepObject();
-			brep_obj->applyBRep(p_holder->getBackShape());
-			dataManager_->addObject(brep_obj); 
-			brep_obj->setPersistentId(p_holder->getObjectPid());
-			brep_obj->updateDraw();
+			AdapterObject* adapter_object = new AdapterObject;
+			adapter_object->setDataType(acamcad::DataType::BREP_TYPE);
+			//adapter_object->bRep = std::make_unique<BRepObject>(adapter_object);
+
+			//BRepObject* brep_obj = new BRepObject();
+			adapter_object->bRep->applyBRep(p_holder->getBackShape());
+			dataManager_->addObject(adapter_object);
+			adapter_object->setPersistentId(p_holder->getObjectPid());
+			adapter_object->bRep->updateDraw();
 		}
 		else {		//revoke operate, need to find the backup data and the object in data manager, apply the old data to the object; 
 
@@ -131,17 +137,21 @@ namespace acamcad {
 		}
 
 		if (actionType == ActionType::AddObject) {		//redo add, need to restore the object from shape and add into data manager; 
-			std::cout << "redo add object" << std::endl; 
+			std::cout << "redo add object" << std::endl;
 			BaseObject* obj = dataManager_->getObjectByPersistentID(p_holder->getObjectPid());
 			if (obj != nullptr) {
 				return;			//Object already exists, no need to revoke delete now. 
 			}
 			//ONLY support bRep object now; 
-			BRepObject* brep_obj = new BRepObject();
-			brep_obj->applyBRep(p_holder->getBackShape());
-			dataManager_->addObject(brep_obj);
-			brep_obj->setPersistentId(p_holder->getObjectPid());
-			brep_obj->updateDraw();
+			AdapterObject* adapter_object = new AdapterObject;
+			adapter_object->setDataType(acamcad::DataType::BREP_TYPE);
+			//adapter_object->bRep = std::make_unique<BRepObject>(adapter_object);
+
+			///BRepObject* brep_obj = new BRepObject();
+			adapter_object->bRep->applyBRep(p_holder->getBackShape());
+			dataManager_->addObject(adapter_object);
+			adapter_object->setPersistentId(p_holder->getObjectPid());
+			adapter_object->bRep->updateDraw();
 		}
 		else if (actionType == ActionType::DeleteObject) {		//redo delete, need to find the object in data manager and delete it. 
 			std::cout << "redo delete object" << std::endl;
@@ -151,7 +161,7 @@ namespace acamcad {
 				//Object gone, cannot revoke add operation; 
 				return;
 			}
-			dataManager_->deleteObject(obj);
+			//dataManager_->deleteObject(obj);
 		}
 
 	}
@@ -159,16 +169,16 @@ namespace acamcad {
 	void UndoRedoHandler::undo()
 	{
 		if (undo_queue_.empty()) {
-			return; 
+			return;
 		}
 
-		bool hasNext = false; 
+		bool hasNext = false;
 		do {
 			OperateContext context = undo_queue_.back();
 			int currentSeq = (context.second)->getOperationId();
 			revokeOp(context);
 
-			undo_queue_.pop_back(); 
+			undo_queue_.pop_back();
 			redo_queue_.push_back(context);
 			if (redo_queue_.size() >= max_queue_size_) {
 
@@ -178,18 +188,18 @@ namespace acamcad {
 			}
 
 			if (undo_queue_.empty()) {
-				return; 
+				return;
 			}
 			OperateContext next_context = undo_queue_.back();
 			int nextSeq = (next_context.second)->getOperationId();
 			hasNext = (nextSeq == currentSeq);
 		} while (hasNext);
-	
+
 	}
 
 	void UndoRedoHandler::redo()
 	{
-		
+
 		if (redo_queue_.empty()) {
 			return;
 		}
@@ -220,7 +230,7 @@ namespace acamcad {
 
 	bool UndoRedoHandler::canUndo()
 	{
-		return (!undo_queue_.empty()); 
+		return (!undo_queue_.empty());
 	}
 
 	bool UndoRedoHandler::canRedo()
@@ -231,8 +241,8 @@ namespace acamcad {
 	void UndoRedoHandler::releaseQueueItem(OperateContext& context)
 	{
 		if (context.second != nullptr) {
-			delete context.second; 
-			context.second = nullptr; 
+			delete context.second;
+			context.second = nullptr;
 		}
 	}
 }

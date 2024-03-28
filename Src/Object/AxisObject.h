@@ -1,17 +1,17 @@
 /* ===================================================================
-* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd. 
+* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd.
 * All rights reserved.
 *
-* This software is licensed under the GNU Affero General Public License 
-* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this 
+* This software is licensed under the GNU Affero General Public License
+* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this
 * software under the terms of either license.
 *
-* For more information about the AGPLv3.0 license, please visit: 
+* For more information about the AGPLv3.0 license, please visit:
 * https://www.gnu.org/licenses/agpl-3.0.html
-* For licensing inquiries or to obtain a commercial license, please 
+* For licensing inquiries or to obtain a commercial license, please
 * contact Hefei Jiushao Intelligent Technology Co., Ltd.
 * ===================================================================
-* Author: 
+* Author:
 */
 #pragma once
 
@@ -20,99 +20,99 @@
 
 namespace acamcad
 {
-class Arrow : BaseObject
-{
-public:
-	Arrow();
-	Arrow(const Arrow& object);
-	Arrow(const AMCAX::Coord3& direction, double lenth, double radius = 1.0);
-	Arrow(const AMCAX::Coord3& from, const AMCAX::Coord3& direction, double length, double radius = 1.0);
-	Arrow(const AMCAX::Coord3& from, const AMCAX::Coord3& to, double radius = 1.0);
-	virtual ~Arrow() {}
+	class Arrow : BaseObject
+	{
+	public:
+		Arrow();
+		Arrow(const Arrow& object);
+		Arrow(const AMCAX::Coord3& direction, double lenth, double radius = 1.0);
+		Arrow(const AMCAX::Coord3& from, const AMCAX::Coord3& direction, double length, double radius = 1.0);
+		Arrow(const AMCAX::Coord3& from, const AMCAX::Coord3& to, double radius = 1.0);
+		virtual ~Arrow() {}
 
-public:
-	AMCAX::Coord3 direction() const { return dir_; }
-	AMCAX::Coord3& direction() { return dir_; }
-	
-	AMCAX::Coord3 from() const { return from_; }
-	AMCAX::Coord3& from() { return from_; }
+	public:
+		AMCAX::Coord3 direction() const { return dir_; }
+		AMCAX::Coord3& direction() { return dir_; }
 
-	void setDirection(const AMCAX::Coord3& dirction) {
-		dir_ = dirction;
-		dir_.Normalize();
-	}
+		AMCAX::Coord3 from() const { return from_; }
+		AMCAX::Coord3& from() { return from_; }
 
-	void setFrom(const AMCAX::Coord3& point) { from_ = point; }
+		void setDirection(const AMCAX::Coord3& dirction) {
+			dir_ = dirction;
+			dir_.Normalize();
+		}
 
-	double length() const { return length_; }
-	double& length() { return length_; }
-	
-	void setLength(double length) { length_ = length; }
+		void setFrom(const AMCAX::Coord3& point) { from_ = point; }
 
-	double radius() const { return radius_; }
-	double& radius() { return radius_; }
-	void setRadius(double radius) { radius_ = radius; }
-public:
-	void orthogonalFrame(Arrow& u, Arrow& v);
+		double length() const { return length_; }
+		double& length() { return length_; }
 
-private:
-	double length_;
-	double radius_;
+		void setLength(double length) { length_ = length; }
 
-	AMCAX::Coord3 dir_;
-	AMCAX::Coord3 from_;
-};
+		double radius() const { return radius_; }
+		double& radius() { return radius_; }
+		void setRadius(double radius) { radius_ = radius; }
+	public:
+		void orthogonalFrame(Arrow& u, Arrow& v);
 
-class Axis : BaseObject
-{
-	friend class ObjectDraw;
-	friend class AxisObjectDraw;
+	private:
+		double length_;
+		double radius_;
 
-public:
-	Axis();
-	Axis(double length);
-	Axis(const AMCAX::Coord3& getCenter, const AMCAX::Coord3& z_axis);
+		AMCAX::Coord3 dir_;
+		AMCAX::Coord3 from_;
+	};
 
-	virtual ~Axis() {};
+	class Axis : BaseObject
+	{
+		friend class ObjectDraw;
+		friend class AxisObjectDraw;
 
-public:
-	const Arrow& axis_x() const { return axis_x_; }
-	Arrow axis_x() { return axis_x_; }
+	public:
+		Axis();
+		Axis(double length);
+		Axis(const AMCAX::Coord3& getCenter, const AMCAX::Coord3& z_axis);
 
-	const Arrow& axis_y() const { return axis_y_; }
-	Arrow axis_y() { return axis_y_; }
+		virtual ~Axis() {};
 
-	const Arrow& axis_z() const { return axis_z_; }
-	Arrow axis_z() { return axis_z_; }
+	public:
+		const Arrow& axis_x() const { return axis_x_; }
+		Arrow axis_x() { return axis_x_; }
 
-	// x is 0, y is 1, z is 2;
-	Arrow axis_vector(int i) const;
-	Arrow axis_vector(int i);
+		const Arrow& axis_y() const { return axis_y_; }
+		Arrow axis_y() { return axis_y_; }
 
-	void setAxis(const AMCAX::Coord3& axis_z, double length = 1.0);
+		const Arrow& axis_z() const { return axis_z_; }
+		Arrow axis_z() { return axis_z_; }
 
-public:
-	double length() { return axis_z_.length(); }
-	void setlentgh(double length = 1.0);
+		// x is 0, y is 1, z is 2;
+		Arrow axis_vector(int i) const;
+		Arrow axis_vector(int i);
 
-	AMCAX::Coord3 getCenter() { return axis_z_.from(); }
-	void setCenter(const AMCAX::Coord3& getCenter);
+		void setAxis(const AMCAX::Coord3& axis_z, double length = 1.0);
 
-	double radius() { return axis_z_.radius(); }
-	void setRadius(double radius);
+	public:
+		double length() { return axis_z_.length(); }
+		void setlentgh(double length = 1.0);
 
-private:
-	AMCAX::Coord3 center_;
+		AMCAX::Coord3 getCenter() { return axis_z_.from(); }
+		void setCenter(const AMCAX::Coord3& getCenter);
 
-	Arrow axis_x_;
-	Arrow axis_y_; 
-	Arrow axis_z_;
+		double radius() { return axis_z_.radius(); }
+		void setRadius(double radius);
 
-public:
-	const ObjectDraw* getDrawTool() const { return draw_tool_; }
+	private:
+		AMCAX::Coord3 center_;
 
-private:
-	ObjectDraw* draw_tool_;
-};
-	 
+		Arrow axis_x_;
+		Arrow axis_y_;
+		Arrow axis_z_;
+
+	public:
+		const ObjectDraw* getDrawTool() const { return draw_tool_; }
+
+	private:
+		ObjectDraw* draw_tool_;
+	};
+
 } // namespace acamcad

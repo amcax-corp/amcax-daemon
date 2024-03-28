@@ -28,8 +28,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #find depended qt libraries 
 find_package(Qt5 COMPONENTS Widgets Core Gui OpenGL REQUIRED)
 
-SET(AMCAX_PATH "AMCAX/include")
-
 if(DEFINED CMAKE_BUILD_TYPE) 
     message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 elseif(DEFINED ENV{CMAKE_BUILD_TYPE})
@@ -41,15 +39,29 @@ else()
 endif()
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug") 
-    SET(AMCAX_DLL_PATH "AMCAX/bin/Debug")
-    SET(AMCAX_LIB_PATH "AMCAX/lib/Debug")
+    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/AMCAX/lib/cmake")
+    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/third_party/FreeGLUT/x64-Debug/lib/cmake")
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
+    set(AMCAX_DLL_PATH "AMCAX/bin/Debug")
+    set(FREEGLUT_DLL_PATH "third_party/FreeGLUT/x64-Debug/bin")
 else()
-    SET(AMCAX_DLL_PATH "AMCAX/bin/Release")
-    SET(AMCAX_LIB_PATH "AMCAX/lib/Release")
+    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/AMCAX/lib/cmake")
+    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/third_party/FreeGLUT/x64-Release/lib/cmake")
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
+    set(AMCAX_DLL_PATH "AMCAX/bin/Release")
+    set(FREEGLUT_DLL_PATH "third_party/FreeGLUT/x64-Release/bin")
 endif()
 
+message("CMAKE_PREFIX_PATH is now : ${CMAKE_PREFIX_PATH}")
+#find depended libraries 
+find_package(AMCAXCommon REQUIRED)
+find_package(AMCAXPart REQUIRED)
+find_package(AMCAXStep REQUIRED)
+find_package(AMCAXSubD REQUIRED)
+find_package(AMCAXTMSpline REQUIRED)
+find_package(AMCAXOCCTIO REQUIRED)
+find_package(FreeGLUT REQUIRED)
 
-include_directories(${AMCAX_PATH})
 
 
 qt5_add_resources(QRC_FILES Resources/Resource.qrc)
@@ -112,26 +124,18 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::OpenGL
     opengl32
     glu32
+    AMCAXCommon
+    AMCAXPart
+    AMCAXStep
+    AMCAXSubD
+    AMCAXTMSpline
+    FreeGLUT::freeglut
 )
 
-FIND_LIBRARY(AMCAXCommon "AMCAXCommon" ${AMCAX_LIB_PATH})
-FIND_LIBRARY(AMCAXPart "AMCAXPart" ${AMCAX_LIB_PATH})
-FIND_LIBRARY(AMCAXStep "AMCAXStep" ${AMCAX_LIB_PATH})
+message("CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}")
 
-message("CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}")
+execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR})
 
-#copy AMCAX library to output path 
-file(GLOB_RECURSE dll_files ${AMCAX_DLL_PATH}/*.dll)
-foreach(dll_file ${dll_files})
-    get_filename_component(dll_filename ${dll_file} NAME)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                                 ${dll_file}
-                                 ${CMAKE_BINARY_DIR}/${dll_filename}
-                       BYPRODUCTS ${CMAKE_BINARY_DIR}/${dll_filename})
-endforeach()
-
-
-target_link_libraries(${PROJECT_NAME} 
-        ${AMCAXCommon} ${AMCAXPart} ${AMCAXStep}
+file(COPY ${AMCAX_DLL_PATH}/ ${FREEGLUT_DLL_PATH}/
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
 )

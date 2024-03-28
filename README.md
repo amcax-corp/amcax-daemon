@@ -2,7 +2,7 @@
 [![en-us](https://img.shields.io/badge/en-us-yellow.svg)](https://github.com/amcax-kernel/amcax-daemon/blob/main/README.md)
 [![中文-简体](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-%E7%AE%80%E4%BD%93-red.svg)](https://github.com/amcax-kernel/amcax-daemon/blob/main/README.zh_cn.md)
 
-**Version 1.0.1**
+**Version 1.0.2**
 
 AMCAX-Daemon showcases some basic functions that AMCAX geometry kernel supports. There are more functions that can be supported by the kernel but currently not used by Daemon.
 
@@ -89,7 +89,7 @@ All the related functions are availabe under the `File` menu.
 
 ### Prerequisite
 
-- CMake 3.2.7 +
+- CMake 3.27 +
   
 - Visual Studio 2019
     - Extension: Qt VS Tool (Qt Versions Configured)
@@ -97,7 +97,7 @@ All the related functions are availabe under the `File` menu.
 - QT 5.15.2
     - Add qmake path (eg. D:\Qt\5.15.2\msvc2019_64\bin) in to PATH environment variable. 
   
-- [AMCAX Kernal](https://amcax.net/) 3.5.0
+- [AMCAX Kernal](https://amcax.net/) 3.6.0
   
 
 ### Steps
@@ -117,11 +117,12 @@ All the related functions are availabe under the `File` menu.
 ```text
     Amcax-Daemon
          |----------AMCAX
-         |-------------|-------include
-         |-------------|-------lib
-         |-------------|-------bin
+         |----------|----------include
+         |----------|----------lib
+         |----------|----------bin
          |----------Resources
          |----------Src
+         |----------third_party
          |----------...
          |----------CMakeLists.txt
 ```
@@ -132,7 +133,7 @@ All the related functions are availabe under the `File` menu.
   
 - Copy the folders (`Debug` & `Release`) in AMCAX/bin into your project's output folder.
   
-- Run AmcaxDaemonCore.exe and have fun!
+- Run AmcaxDaemon.exe and have fun!
   
 
 ## Tutorial

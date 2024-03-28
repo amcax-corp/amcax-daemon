@@ -1,17 +1,17 @@
 /* ===================================================================
-* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd. 
+* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd.
 * All rights reserved.
 *
-* This software is licensed under the GNU Affero General Public License 
-* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this 
+* This software is licensed under the GNU Affero General Public License
+* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this
 * software under the terms of either license.
 *
-* For more information about the AGPLv3.0 license, please visit: 
+* For more information about the AGPLv3.0 license, please visit:
 * https://www.gnu.org/licenses/agpl-3.0.html
-* For licensing inquiries or to obtain a commercial license, please 
+* For licensing inquiries or to obtain a commercial license, please
 * contact Hefei Jiushao Intelligent Technology Co., Ltd.
 * ===================================================================
-* Author: 
+* Author:
 */
 #include "MultOperate.h"
 
@@ -23,13 +23,13 @@ namespace acamcad
 	}
 
 	MultOperate::MultOperate(const SelectModel& smodel)
-		:selmodel_(smodel)
+		: selmodel_(smodel)
 	{
 	}
 
-	BaseObject* MultOperate::operateWithBRep()
+	BaseObject* MultOperate::operate()
 	{
-	//	Massage::Error("MultOperate::operateWithSpline -- this type can not do this operation");
+		//	Massage::Error("MultOperate::operateWithSpline -- this type can not do this operation");
 		return nullptr;
 	}
 
@@ -59,10 +59,10 @@ namespace acamcad
 		objectList_.clear();
 		selmodel_ = SelectModel::OBJECT_MODEL;
 		isSaveOri_ = false;
-		objectType_ = DataType::UNKNOW_TYPE;
+		objectType_ = DataType::CUSTOM_TYPE;
 	}
 
-	void MultOperate::setObjectList(std::vector<BaseObject*> object_list)
+	void MultOperate::setObjectList(std::vector<AdapterObject*> object_list)
 	{
 		objectList_ = object_list;
 	}
