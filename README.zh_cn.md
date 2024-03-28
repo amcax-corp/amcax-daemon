@@ -3,7 +3,7 @@
 [![中文-简体](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-%E7%AE%80%E4%BD%93-red.svg)](https://github.com/amcax-kernel/amcax-daemon/blob/main/README.zh_cn.md)
 
 
-**版本 1.0.1**
+**版本 1.0.2**
 
 九韶精灵展示了九韶几何内核支持的一些基本功能。 内核支持更多更丰富的功能，但目前九韶精灵中还暂未使用。 请注意，此项目并不包含AMCAX几何内核的使用许可证，您需要到[九韶官网](https://amcax.net/)自行申请许可证。
 
@@ -92,7 +92,7 @@
 
 ### 前提条件
 
-- CMake 3.2.7 +
+- CMake 3.27 +
   
 - Visual Studio 2019
     - 扩展: Qt VS Tool (请配置Qt Versions)
@@ -100,7 +100,7 @@
 - QT 5.15.2
     - 添加 qmake 路径（例如：D:\Qt\5.15.2\msvc2019_64\bin）到 PATH 环境变量。
   
-- [九韶几何内核](https://amcax.net/) 3.5.0
+- [九韶几何内核](https://amcax.net/) 3.6.0
   
 
 ### 步骤
@@ -120,11 +120,12 @@
 ```text
     Amcax-Daemon
          |----------AMCAX
-         |-------------|-------include
-         |-------------|-------lib
-         |-------------|-------bin
+         |----------|----------include
+         |----------|----------lib
+         |----------|----------bin
          |----------Resources
          |----------Src
+         |----------third_party
          |----------...
          |----------CMakeLists.txt
 ```
@@ -135,7 +136,7 @@
   
 - 将 AMCAX/bin 中的文件夹（`Debug` & `Release`）复制到项目的输出文件夹中。
   
-- 运行 AmcaxDaemonCore.exe 
+- 运行 AmcaxDaemon.exe 
   
 
 ## 教程

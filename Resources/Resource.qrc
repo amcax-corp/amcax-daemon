@@ -25,5 +25,31 @@
         <file>images/Prism.png</file>
         <file>images/Polygon.png</file>
         <file>images/logo.ico</file>
+        <file>images/SubdiveCC.png</file>
+        <file>images/SubdiveLoop.png</file>
+        <file>images/MeshTriangulation.png</file>
+        <file>images/DeleteObject.png</file>
+        <file>images/Mirror.png</file>
+        <file>images/EmbedFace.png</file>
+        <file>images/DeleteFace.png</file>
+        <file>images/Separate.png</file>
+        <file>images/Weld.png</file>
+        <file>images/SplitEdgeOnly.png</file>
+        <file>images/SplitLoop.png</file>
+        <file>images/SplitFace.png</file>
+        <file>images/CollapseEdge.png</file>
+        <file>images/SwapEdge.png</file>
+        <file>images/BridgeEdge.png</file>
+        <file>images/ExtrudeEdgeHorizontal.png</file>
+        <file>images/ExtrudeEdgeVertical.png</file>
+        <file>images/Thicken.png</file>
+        <file>images/FillHole.png</file>
+        <file>images/ReverseNormal.png</file>
+        <file>images/QuadSphere.png</file>
+        <file>images/Crease.png</file>
+        <file>images/RCrease.png</file>
+        <file>images/Repair.png</file>
+        <file>images/Uniform.png</file>
+        <file>images/SplitFace1.png</file>
     </qresource>
 </RCC>

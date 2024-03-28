@@ -1,17 +1,17 @@
 /* ===================================================================
-* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd. 
+* Copyright (C) 2023 Hefei Jiushao Intelligent Technology Co., Ltd.
 * All rights reserved.
 *
-* This software is licensed under the GNU Affero General Public License 
-* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this 
+* This software is licensed under the GNU Affero General Public License
+* v3.0 (AGPLv3.0) or a commercial license. You may choose to use this
 * software under the terms of either license.
 *
-* For more information about the AGPLv3.0 license, please visit: 
+* For more information about the AGPLv3.0 license, please visit:
 * https://www.gnu.org/licenses/agpl-3.0.html
-* For licensing inquiries or to obtain a commercial license, please 
+* For licensing inquiries or to obtain a commercial license, please
 * contact Hefei Jiushao Intelligent Technology Co., Ltd.
 * ===================================================================
-* Author: 
+* Author:
 */
 #include "DataManager.h"
 #include "../Object/BaseObject.h"
@@ -81,11 +81,11 @@ CObjectRIter DataManager::objects_rend() const
 	return objects_.crend();
 }
 
-BaseObject* DataManager::getObjectByPersistentID(int id)
+AdapterObject* DataManager::getObjectByPersistentID(int id)
 {
 	if (id < 0) return nullptr;
 
-	BaseObject* obj = nullptr;
+	AdapterObject* obj = nullptr;
 	for (CObjectIter co_it = objects_begin(); co_it != objects_end(); co_it++)
 	{
 		if ((*co_it)->persistentId() == id)
@@ -93,17 +93,20 @@ BaseObject* DataManager::getObjectByPersistentID(int id)
 	}
 	return obj;
 }
-int  DataManager::getLastPersistentId() {
+int DataManager::getLastPersistentId() {
 	if (objects_.empty()) {
-		return -1; 
+		return -1;
 	}
-	return objects_.back() -> persistentId();
+	return objects_.back()->persistentId();
 }
-void DataManager::addObject(BaseObject* object)
+void DataManager::addObject(AdapterObject* object)
 {
 	object->setPersistentId(data_persistent_); data_persistent_++;
 	object->setId(objects_.size());
 	objects_.push_back(object);
+
+
+
 }
 
 void DataManager::deleteObject(ObjectIter& it)
@@ -120,15 +123,15 @@ void DataManager::deleteObject(ObjectIter& it)
 	}
 }
 
-BaseObject* DataManager::copyObject(BaseObject* object)
+AdapterObject* DataManager::copyObject(AdapterObject* object)
 {
 	if (object == nullptr)
 		return nullptr;
 
-	if (object->dataType() == DataType::BREP_TYPE)
+	if (object->dataType() != DataType::CUSTOM_TYPE)
 	{
-		BRepObject* brep_object = dynamic_cast<BRepObject*> (object);
-		BRepObject* new_object  = new BRepObject(*brep_object);
+		//AdapterObject* brep_object = dynamic_cast<AdapterObject*> (object);
+		AdapterObject* new_object = new AdapterObject(*object, true);
 
 		addObject(new_object);
 		return new_object;
@@ -137,7 +140,7 @@ BaseObject* DataManager::copyObject(BaseObject* object)
 	return nullptr;
 }
 
-void DataManager::deleteObject(BaseObject* object)
+void DataManager::deleteObject(AdapterObject* object)
 {
 	for (ObjectIter o_it = objects_begin(); o_it != objects_end(); o_it++)
 	{
@@ -149,12 +152,50 @@ void DataManager::deleteObject(BaseObject* object)
 	}
 }
 
-void DataManager::restoreObject(BaseObject* object)
+void DataManager::restoreObject(AdapterObject* object)
 {
 	object->setPersistentId(data_persistent_); data_persistent_++;
 	object->setId(objects_.size());
 	objects_.push_back(object);
 }
+
+
+void DataManager::addObject_UndoManage(AdapterObject* object)
+{
+	AdapterObject* new_object = new AdapterObject(*object, true);
+	new_object->updateDraw();
+
+	objects_.push_back(new_object);
+}
+
+
+void DataManager::deleteObject_UndoManage(AdapterObject* object)
+{
+	for (ObjectIter o_it = objects_begin(); o_it != objects_end(); o_it++)
+	{
+		if ((*o_it)->persistentId() == object->persistentId())
+		{
+			AdapterObject* obj = *o_it;
+			delete obj;
+
+			objects_.erase(o_it);
+			break;
+		}
+	}
+
+}
+
+
+void DataManager::sortObject_UndoManage()
+{
+	int id = 0;
+	for (ObjectIter o_it = objects_begin(); o_it != objects_end(); ++o_it)
+	{
+		(*o_it)->setId(id);
+		id++;
+	}
+}
+
 
 //============================================================
 //                  Object Info
@@ -169,12 +210,12 @@ void DataManager::clearSelected()
 	}
 }
 
-void DataManager::getSelectedList(std::vector<BaseObject*>& selected)
+void DataManager::getSelectedList(std::vector<AdapterObject*>& selected)
 {
 	for (ObjectIter o_it = objects_begin(); o_it != objects_end(); ++o_it)
 	{
 		if ((*o_it)->isSelect()) {
-			selected.push_back(*o_it); 
+			selected.push_back(*o_it);
 		}
 	}
 }
