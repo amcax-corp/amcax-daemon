@@ -37,7 +37,7 @@ namespace acamcad
 		AMCAX::SubD::MeshMakeRectangle mesh(p0, p1, segU_, segV_);
 
 
-		adapter->mesh->SetMesh(mesh.BuildMesh());
+		adapter->mesh->setShape(mesh.BuildMesh());
 		//brep_object->bRep->getShape() = AMCAX::MakeFace(AMCAX::Plane(), xmin, xmax, ymin, ymax);
 		//brep_object->bRep->updateDraw();
 

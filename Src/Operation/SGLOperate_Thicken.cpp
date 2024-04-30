@@ -21,11 +21,11 @@ namespace acamcad
 		case DataType::MESH_TYPE:
 			//AMCAX::SubD::MeshTool::MeshTriangles(adapter->mesh->mesh());
 			//result = true;
-			result = AMCAX::SubD::MeshOffset::ThickenMesh(adapter->mesh->mesh(), 0.2);
+			result = AMCAX::SubD::MeshOffset::ThickenMesh(adapter->mesh->getShape(), 0.2);
 			break;
 		case DataType::TSPLINEU_TYPE:
 		{
-			result = AMCAX::TMS::TMSplineThicken().ThickenTMSplins(adapter->tSpline->getTSpline(), 0.2);
+			result = AMCAX::TMS::TMSplineThicken().ThickenTMSplins(adapter->tSpline->getShape(), 0.2);
 
 		}
 		break;

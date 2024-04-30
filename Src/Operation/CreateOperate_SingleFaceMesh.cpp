@@ -10,7 +10,7 @@ namespace acamcad
 
 	bool CreateOperate_SingleFaceMesh::DoOperate(AdapterObject* object)
 	{
-		object->mesh->assignMesh();
+		object->mesh->assignShape();
 
 		std::vector<MPoint3> pList;
 		for (auto& iter : point_list_)
@@ -18,7 +18,7 @@ namespace acamcad
 			pList.push_back(MPoint3(iter));
 		}
 
-		AMCAX::SubD::MeshInsertFace::AddSingleFace(object->mesh->mesh(), pList);
+		AMCAX::SubD::MeshInsertFace::AddSingleFace(object->mesh->getShape(), pList);
 
 		object->updateDraw();
 

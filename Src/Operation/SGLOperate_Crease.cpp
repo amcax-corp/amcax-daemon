@@ -17,7 +17,7 @@ namespace acamcad
 
 		std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 
-		AMCAX::TMS::TMSplineCreaseTool::AddCreaseEdge(object->tSpline->getTSpline(), s_id_list);
+		AMCAX::TMS::TMSplineCreaseTool::AddCreaseEdge(object->tSpline->getShape(), s_id_list);
 
 		object->updateDraw();
 

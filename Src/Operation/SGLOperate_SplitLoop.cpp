@@ -26,31 +26,31 @@ bool acamcad::SGLOperate_SplitLoop::DoOperate(AdapterObject* adapter)
 	case DataType::MESH_TYPE:
 	{
 		int p0, p1;
-		AMCAX::SubD::MeshTool::EdgeVertexIndexs(adapter->mesh->mesh(), s_info_list_[0].object_subselect_id_, p0, p1);
+		AMCAX::SubD::MeshTool::EdgeVertexIndexs(adapter->mesh->getShape(), s_info_list_[0].object_subselect_id_, p0, p1);
 
-		AMCAX::Point3 point0 = AMCAX::SubD::MeshTool::Position(adapter->mesh->mesh(), p0),
-			point1 = AMCAX::SubD::MeshTool::Position(adapter->mesh->mesh(), p1),
+		AMCAX::Point3 point0 = AMCAX::SubD::MeshTool::Position(adapter->mesh->getShape(), p0),
+			point1 = AMCAX::SubD::MeshTool::Position(adapter->mesh->getShape(), p1),
 			pointT(re_points_[0]);
 
 		double t = point0.Distance(pointT) / point0.Distance(point1);
 
-		result = AMCAX::SubD::MeshSplit::SplitLoop(adapter->mesh->mesh(), s_info_list_[0].object_subselect_id_, 1 - t);
+		result = AMCAX::SubD::MeshSplit::SplitLoop(adapter->mesh->getShape(), s_info_list_[0].object_subselect_id_, 1 - t);
 	}
 	break;
 	case DataType::TSPLINEU_TYPE:
 	{
 		int p0, p1;
-		AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(adapter->tSpline->getTSpline(), s_info_list_[0].object_subselect_id_,
+		AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(adapter->tSpline->getShape(), s_info_list_[0].object_subselect_id_,
 			p0, p1);
-		AMCAX::Point3 point0 = AMCAX::TMS::TMSplineTool::ControlPosition(adapter->tSpline->getTSpline(), p0),
-			point1 = AMCAX::TMS::TMSplineTool::ControlPosition(adapter->tSpline->getTSpline(), p1),
+		AMCAX::Point3 point0 = AMCAX::TMS::TMSplineTool::ControlPosition(adapter->tSpline->getShape(), p0),
+			point1 = AMCAX::TMS::TMSplineTool::ControlPosition(adapter->tSpline->getShape(), p1),
 			pointT(re_points_[0]);
 
 		double t = point0.Distance(pointT) / point0.Distance(point1);
 		AMCAX::TMS::TMSplineSplit tool;
-		result = tool.CanSplitFaceLoop(adapter->tSpline->getTSpline(), s_info_list_[0].object_subselect_id_, t);
+		result = tool.CanSplitFaceLoop(adapter->tSpline->getShape(), s_info_list_[0].object_subselect_id_, t);
 		if (result) {
-			tool.SplitFaceLoop(adapter->tSpline->getTSpline(), s_info_list_[0].object_subselect_id_, t);
+			tool.SplitFaceLoop(adapter->tSpline->getShape(), s_info_list_[0].object_subselect_id_, t);
 			adapter->updateDraw();
 		}
 		//result = AMCAX::TMS::TMSplineSplit().SplitFaceLoop(adapter->tSpline->getTSpline(), 1 - t);

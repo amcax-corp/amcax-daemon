@@ -28,7 +28,7 @@ namespace acamcad
 				//result = true;
 				std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 
-				result = AMCAX::SubD::MeshInsertFace::EmbedSingleFace(adapter->mesh->mesh(), s_id_list) != nullptr;
+				result = AMCAX::SubD::MeshInsertFace::EmbedSingleFace(adapter->mesh->getShape(), s_id_list) != nullptr;
 				adapter->updateDraw();
 			}
 			else if (selmodel_ == SelectModel::EDGE_MODEL)
@@ -40,7 +40,7 @@ namespace acamcad
 				//polymesh::MEdge* e1 = mesh_object->mesh()->edge(s_id_list[1]);
 
 				//polymesh::addFaceByEdge(mesh_object->mesh(), e0, e1);
-				result = AMCAX::SubD::MeshInsertFace::AddFaceByEdge(adapter->mesh->mesh(), s_id_list[0], s_id_list[1]) != nullptr;
+				result = AMCAX::SubD::MeshInsertFace::AddFaceByEdge(adapter->mesh->getShape(), s_id_list[0], s_id_list[1]) != nullptr;
 				adapter->updateDraw();
 
 
@@ -61,7 +61,7 @@ namespace acamcad
 				for (int i = 0; i < s_id_list.size(); i++)
 				{
 					AMCAX::Point3 point =
-						AMCAX::TMS::TMSplineTool::ControlPosition(adapter->tSpline->getTSpline(), s_id_list[i]);
+						AMCAX::TMS::TMSplineTool::ControlPosition(adapter->tSpline->getShape(), s_id_list[i]);
 
 					points.push_back(point);
 				}
@@ -69,10 +69,10 @@ namespace acamcad
 
 				AMCAX::TMS::TMSplineAddFace tool;
 
-				result = tool.CanAddSingleFace(adapter->tSpline->getTSpline(), points);
+				result = tool.CanAddSingleFace(adapter->tSpline->getShape(), points);
 
 				if (result) {
-					tool.AddSingleFace(adapter->tSpline->getTSpline(), points);
+					tool.AddSingleFace(adapter->tSpline->getShape(), points);
 
 					adapter->updateDraw();
 				}
@@ -93,10 +93,10 @@ namespace acamcad
 
 				AMCAX::TMS::TMSplineAddFace tool;
 
-				result = tool.CanAddFaceByEdge(adapter->tSpline->getTSpline(), s_id_list[0], s_id_list[1]);
+				result = tool.CanAddFaceByEdge(adapter->tSpline->getShape(), s_id_list[0], s_id_list[1]);
 
 				if (result) {
-					tool.AddFaceByEdge(adapter->tSpline->getTSpline(), s_id_list[0], s_id_list[1]);
+					tool.AddFaceByEdge(adapter->tSpline->getShape(), s_id_list[0], s_id_list[1]);
 					adapter->updateDraw();
 				}
 			}

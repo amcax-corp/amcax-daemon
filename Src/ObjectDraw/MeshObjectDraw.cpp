@@ -29,7 +29,7 @@ void MeshObjectDraw::draw(const DrawModel& dmodel, bool is_show_point) const
 	if (!parent_->isVisible())
 		return;
 
-	const polymesh::PolyMesh* mesh = parent_->mesh->mesh_;
+	const polymesh::PolyMesh* mesh = parent_->mesh->getShape();
 
 	if (mesh == nullptr) { return; }
 	if (mesh->numVertices() == 0) { return; }
@@ -118,7 +118,7 @@ void MeshObjectDraw::draw(const DrawModel& dmodel, bool is_show_point) const
 
 void MeshObjectDraw::drawSelected(const SelectModel& s_model, int s_id) const
 {
-	polymesh::PolyMesh* mesh = parent_->mesh->mesh_;
+	polymesh::PolyMesh* mesh = parent_->mesh->getShape();
 
 	if (s_model == SelectModel::VERTEX_MODEL)
 	{
@@ -174,7 +174,7 @@ void MeshObjectDraw::drawWithObjectID() const
 	if (!parent_->isVisible())
 		return;
 
-	const polymesh::PolyMesh* mesh = parent_->mesh->mesh_;
+	const polymesh::PolyMesh* mesh = parent_->mesh->getShape();
 
 	if (mesh == nullptr) { return; }
 	if (mesh->numVertices() == 0) { return; }
@@ -194,7 +194,7 @@ void MeshObjectDraw::drawWithObjectID() const
 
 void MeshObjectDraw::drawWithFaceID() const
 {
-	polymesh::PolyMesh* mesh = parent_->mesh->mesh();
+	polymesh::PolyMesh* mesh = parent_->mesh->getShape();
 
 	//auto indexs = AMCAX::SubD::MeshTool::FaceVertexIndexs(mesh, i);
 	for (int i = 0; i < mesh->numPolygons(); i++) {
@@ -219,7 +219,7 @@ void MeshObjectDraw::drawWithFaceID() const
 
 void MeshObjectDraw::drawWithEdgeID() const
 {
-	auto mesh = parent_->mesh->mesh();
+	auto mesh = parent_->mesh->getShape();
 
 	for (int i = 0; i < mesh->numEdges(); i++)
 	{
@@ -240,7 +240,7 @@ void MeshObjectDraw::drawWithEdgeID() const
 
 void MeshObjectDraw::drawWithVertexID() const
 {
-	auto mesh = parent_->mesh->mesh();
+	auto mesh = parent_->mesh->getShape();
 
 
 	for (int i = 0; i < mesh->numVertices(); i++)

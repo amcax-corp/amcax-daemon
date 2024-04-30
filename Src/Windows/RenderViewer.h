@@ -20,14 +20,21 @@
 #include "../Object/ObjectDefine.h"
 #include "AxisOperate.h"
 #include "../Core/CoreDefine.h"
-#include "ParamDialog.h"
-#include "../record/Record.h"
+//#include "ParamDialog.h"
 
 namespace acamcad
 {
 	class DataManager;
 	class AMCore;
 	class SelectTool;
+
+	class RenderViewerListen
+	{
+
+	public:
+		virtual void refresh_view(DrawModel model) = 0;
+		virtual void refresh_select(SelectModel model) = 0;
+	};
 
 	class RenderViewer : public QGLViewer
 	{
@@ -40,31 +47,6 @@ namespace acamcad
 				model(sm), action(act) { }
 			SelectAction() {}
 			AMCAX::Coord3 mouseMoveTrans(const QPoint& e_point, const AMCAX::Coord3& o_center);
-		};
-
-		enum OperateType {
-
-			OPERATE_BREP_PLANE,
-			OPERATE_BREP_POLYGON,
-			OPERATE_BREP_CUBE,
-			OPERATE_BREP_SPHERE,
-			OPERATE_BREP_CYLINDER,
-			OPERATE_BREP_CONE,
-			OPERATE_BREP_TORUS,
-			OPERATE_BREP_PRISM,
-			OPERATE_BREP_EXTRUDE,
-
-			OPERATE_MESH_PLANE,
-			OPERATE_MESH_CUBE,
-
-			OPERATE_TSPLINE_PLANE,
-			OPERATE_TSPLINE_CUBE,
-			OPERATE_TSPLINE_UVSPHERE,
-			OPERATE_TSPLINE_QUADSPHERE,
-			OPERATE_TSPLINE_CYLINDER,
-			OPERATE_TSPLINE_CONE,
-			OPERATE_TSPLINE_TORUS,
-			OPERATE_TSPLINE_CIRCULAR,
 		};
 
 	public:
@@ -87,9 +69,9 @@ namespace acamcad
 		virtual void keyReleaseEvent(QKeyEvent*);
 
 	private:
-		void initTSpline();
-		void initMesh();
-		void initBRep();
+		//void initTSpline();
+		//void initMesh();
+		//void initBRep();
 
 	private:
 		void beginPickOperationSingle();
@@ -152,7 +134,7 @@ namespace acamcad
 		Qt::MouseButton click_buttom;
 
 	public:
-		void setSelectModel(SelectModel model) { select_model_ = model; }
+		void setSelectModel(SelectModel model);
 		SelectModel getSelectModel() { return select_model_; }
 
 		void clearSelected();
@@ -179,7 +161,14 @@ namespace acamcad
 
 		/*! @name Draw Method */
 	public:
-		void setDrawModel(DrawModel model) { draw_model_ = model; }
+		void setDrawModel(DrawModel model) {
+			draw_model_ = model;
+
+			if (listen_)
+				listen_->refresh_view(model);
+
+		}
+
 		DrawModel getDrawModel() { return draw_model_; }
 
 	private:
@@ -220,12 +209,12 @@ namespace acamcad
 		void setOperateType(OperationType op_type) { operate_type_ = op_type; }
 		OperationType operateType() { return operate_type_; }
 		void setOperationVector(const AMCAX::Coord3d& vector) { operation_vector_ = vector; }
-		void setRecord(Record* record) { record = record; }
+		//void setRecord(Record* record) { record = record; }
 	private:
 		OperationType operate_type_;
 
 		QVector<SelectAction> selectActions;
-		QMap<OperateType, QVector<ParamDialog::RequestUnit>> objectFillOuts;
+		//QMap<OperateType, QVector<ParamDialog::RequestUnit>> objectFillOuts;
 
 	private:
 		//相机起点，选择射线方向
@@ -249,15 +238,18 @@ namespace acamcad
 	public:
 		void setDataManger(DataManager* dataManager);
 		void setCore(AMCore* core);
+		void setListen(RenderViewerListen* listen);
 
 	private:
 		DataManager* dataManager_;
 		AMCore* coreCommand_;
 		SelectTool* selectTool_;
-		ParamDialog* dialog;
+		//ParamDialog* dialog;
+
+		RenderViewerListen* listen_;
 		//acamcad::Record record;
 
-	private slots:
+	public slots:
 		void selectCheckChanged();
 
 
@@ -272,7 +264,7 @@ namespace acamcad
 		void TSplineObjectOperation(const SelectModel& s_model,
 			const OperationType& op_type, const MeshOperationType mesh_operate_type);
 
-		void disconnectDialog();
+		//void disconnectDialog();
 
 	public slots:
 		void slotUndo();
@@ -281,7 +273,7 @@ namespace acamcad
 
 		friend class OperateToolBar;
 		friend class ACAMWindow;
-	private slots: // base tab
+	public slots: // base tab
 		void slotRenderMode_Wire();
 		void slotRenderMode_Rendering();
 		void slotRenderMode_Shading();
@@ -301,47 +293,47 @@ namespace acamcad
 		void slotSetWorkPlane();
 
 
-	private slots: // BRep tab
+		// BRep tab
 		void slotCreateSingleFaceBRep();
 
 		int getLastPersistentId();
 
 		void slotCreatPlaneBRep();
-		void slotCreatPlaneBRepAccepted(const ParamDialog::Response& data);
+		//void slotCreatPlaneBRepAccepted(const ParamDialog::Response& data);
 
 
 		void slotCreatCubeBRep();
-		void slotCreatCubeBRepAccepted(const ParamDialog::Response& data);
+		//void slotCreatCubeBRepAccepted(const ParamDialog::Response& data);
 
 		void slotCreateSphereBRep();
-		void slotCreateSphereBRepAccepted(const ParamDialog::Response& data);
+		//void slotCreateSphereBRepAccepted(const ParamDialog::Response& data);
 
 		void slotCreateCylinderBRep();
-		void slotCreateCylinderBRepAccepted(const ParamDialog::Response& data);
+		//void slotCreateCylinderBRepAccepted(const ParamDialog::Response& data);
 
 		void slotCreateConeBrep();
-		void slotCreateConeBrepAccepted(const ParamDialog::Response& data);
+		//void slotCreateConeBrepAccepted(const ParamDialog::Response& data);
 
 		void slotCreateTorusBRep();
-		void slotCreateTorusBRepAccepted(const ParamDialog::Response& data);
+		//void slotCreateTorusBRepAccepted(const ParamDialog::Response& data);
 
 		void slotCreatePrismBRep();
-		void slotCreatePrismBRepAccepted(const ParamDialog::Response& data);
+		//void slotCreatePrismBRepAccepted(const ParamDialog::Response& data);
 
 		void slotBRepExtrude();
-		void slotBRepExtrudeAccepted(const ParamDialog::Response& data);
+		//void slotBRepExtrudeAccepted(const ParamDialog::Response& data);
 
 		void slotCreatePolygonBRep();
-		void slotCreatePolygonBRepAccepted(const ParamDialog::Response& data);
+		//void slotCreatePolygonBRepAccepted(const ParamDialog::Response& data);
 
 		// Mesh Tab
 		void slotCreateSingleFaceMesh();
 
 		void slotCreatPlaneMesh();
-		void slotCreatPlaneMeshAccepted(const ParamDialog::Response& data);
+		//void slotCreatPlaneMeshAccepted(const ParamDialog::Response& data);
 
 		void slotCreatCubeMesh();
-		void slotCreatCubeMeshAccepted(const ParamDialog::Response& data);
+		//void slotCreatCubeMeshAccepted(const ParamDialog::Response& data);
 
 
 		void slotMeshSubdiveCatmullClark();
@@ -354,28 +346,28 @@ namespace acamcad
 		void slotCreateSingleFaceTSpline();
 
 		void slotCreatePlaneTSpline();
-		void slotCreatePlaneTSplineAccepted(const ParamDialog::Response& data);
+		//void slotCreatePlaneTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotCreateCubeTSpline();
-		void slotCreateCubeTSplineAccepted(const ParamDialog::Response& data);
+		//void slotCreateCubeTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotCreateUVSphereTSpline();
-		void slotCreateUVSphereTSplineAccepted(const ParamDialog::Response& data);
+		///void slotCreateUVSphereTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotCreateQuadSphereTSpline();
-		void slotCreateQuadSphereTSplineAccepted(const ParamDialog::Response& data);
+		///void slotCreateQuadSphereTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotCreateCylinderTSpline();
-		void slotCreateCylinderTSplineAccepted(const ParamDialog::Response& data);
+		//void slotCreateCylinderTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotCreateConeTSpline();
-		void slotCreateConeTSplineAccepted(const ParamDialog::Response& data);
+		//void slotCreateConeTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotCreateTorusTSpline();
-		void slotCreateTorusTSplineAccepted(const ParamDialog::Response& data);
+		//	void slotCreateTorusTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotCreateCircularTSpline();
-		void slotCreateCircularTSplineAccepted(const ParamDialog::Response& data);
+		//	void slotCreateCircularTSplineAccepted(const ParamDialog::Response& data);
 
 		void slotAddCreaseEdge();
 		void slotRemoveCreaseEdge();
@@ -385,4 +377,4 @@ namespace acamcad
 
 	};
 
-}
+};

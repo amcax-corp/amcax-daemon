@@ -15,7 +15,7 @@ namespace acamcad
 			adapter->dataType() != DataType::TSPLINEU_TYPE)
 			return false;
 
-		return AMCAX::TMS::TMSplineRepair().RepairTSpline(adapter->tSpline->getTSpline());
+		return AMCAX::TMS::TMSplineRepair().RepairTSpline(adapter->tSpline->getShape());
 	}
 
 }

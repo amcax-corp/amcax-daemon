@@ -20,13 +20,13 @@ bool acamcad::SGLOperate_ReverseNormal::DoOperate(AdapterObject* adapter)
 	case DataType::MESH_TYPE:
 	{
 		result = true;
-		AMCAX::SubD::MeshTool::ReverseMeshNormal(adapter->mesh->mesh());
+		AMCAX::SubD::MeshTool::ReverseMeshNormal(adapter->mesh->getShape());
 	}
 	break;
 	case DataType::TSPLINEU_TYPE:
 	{
 		result = true;
-		AMCAX::TMS::TMSplineTool::ReverseTMSNormal(adapter->tSpline->getTSpline());
+		AMCAX::TMS::TMSplineTool::ReverseTMSNormal(adapter->tSpline->getShape());
 	}
 	break;
 	default:

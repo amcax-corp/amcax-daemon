@@ -17,11 +17,11 @@ namespace acamcad
 
 		AMCAX::TMS::TMSplineMakeCylinder shape(frame, radius_, height_, top_, bottom_, rf_num_, vf_num_);
 
-		object->tSpline->setTSpline(shape.BuildSpline());
+		object->tSpline->setShape(shape.BuildSpline());
 
 		object->updateDraw();
 
-		return true;
+		return object->tSpline->getShape();
 
 
 	}

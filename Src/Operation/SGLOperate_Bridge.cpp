@@ -29,7 +29,7 @@ bool SGLOperate_Bridge::DoOperate(AdapterObject* adapter)
 	{
 		std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 
-		result = AMCAX::SubD::MeshInsertFace::AddFaceByEdge(adapter->mesh->mesh(), s_id_list[0], s_id_list[1]);
+		result = AMCAX::SubD::MeshInsertFace::AddFaceByEdge(adapter->mesh->getShape(), s_id_list[0], s_id_list[1]);
 	}
 	break;
 	case DataType::TSPLINEU_TYPE:
@@ -38,10 +38,10 @@ bool SGLOperate_Bridge::DoOperate(AdapterObject* adapter)
 
 		AMCAX::TMS::TMSplineBridgeEdge tool;
 
-		result = tool.CanBridgeEdge(adapter->tSpline->getTSpline(), s_id_list[0], s_id_list[1]);
+		result = tool.CanBridgeEdge(adapter->tSpline->getShape(), s_id_list[0], s_id_list[1]);
 
 		if (result) {
-			tool.BridgeEdge(adapter->tSpline->getTSpline(), s_id_list[0], s_id_list[1]);
+			tool.BridgeEdge(adapter->tSpline->getShape(), s_id_list[0], s_id_list[1]);
 			adapter->updateDraw();
 		}
 	}

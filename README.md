@@ -1,8 +1,8 @@
 # AMCAX-Daemon Introduction
-[![en-us](https://img.shields.io/badge/en-us-yellow.svg)](https://github.com/amcax-kernel/amcax-daemon/blob/main/README.md)
-[![中文-简体](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-%E7%AE%80%E4%BD%93-red.svg)](https://github.com/amcax-kernel/amcax-daemon/blob/main/README.zh_cn.md)
 
-**Version 1.0.2**
+[![en-us](https://img.shields.io/badge/en-us-yellow.svg)](./README.md)
+
+**Version 1.0.3**
 
 AMCAX-Daemon showcases some basic functions that AMCAX geometry kernel supports. There are more functions that can be supported by the kernel but currently not used by Daemon.
 
@@ -33,19 +33,7 @@ Please be informed that this project **does not** come with an AMCAX geometry ke
 
 Refer to figures below to locate the operation areas of AMCAX-Daemon
 
-<p align="center">
-    <picture>
-      <img width="613" alt="base_tab" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/31fe420b-c11a-41ad-8576-ae63361d2757">
-    </picture>
-    <p align="center">Figure 1 Base Tab</p>
-</p>
-
-<p align="center">
-    <picture>
-      <img width="613" alt="brep_tab" src="https://github.com/amcax-kernel/amcax-daemon/assets/150573876/917655ba-b754-40ac-8217-2ee0d2bb115e">
-    </picture>
-    <p align="center">Figure 2 BRep Tab</p>
-</p>
+![Refer to figures below to locate the operation areas of AMCAX-Daemon](./doc/pic/screenshot/screenshot.png)
 
 ### Create / Delete / Move Geometry Objects
 
@@ -67,10 +55,12 @@ Refer to figures below to locate the operation areas of AMCAX-Daemon
 
 ### Persistent Geometry Objects
 
-You may either select some objects and save them as file using `Export Selected` function, or save all the objects in your working space using `Save` function. 
-You can choose to either save the objects `*.abr` file, which is an AMCAX proprietary format; or save the objects as standard STEP file. 
-You can later load the objects from saved file into your working space.
-All the related functions are availabe under the `File` menu.
+![File Menu](./doc/pic/screenshot/screenshot-file.png)
+
+- **Save**: Save the object in `*.amcax` format, which is AMCAX's proprietary format and supports TMSpline, SubD, BRep.
+- **Save As**: Save the object in the format`*.amcax`, `*.stp` `*step`.
+- **Save Selected**: You can choose to save the object in the format `*.amcax`, `*.stp` `*step`.
+- All of the above related features are located under the `File` menu.
 
 ### Auxillary Functions
 
@@ -81,8 +71,6 @@ All the related functions are availabe under the `File` menu.
     - Pan: Press left/right/up/down key
 
 - Undo/Redo
-  
-  Currently only support undo/redo create/delete operation. New features are coming soon.
   
 
 ## How to Build
@@ -95,10 +83,9 @@ All the related functions are availabe under the `File` menu.
     - Extension: Qt VS Tool (Qt Versions Configured)
   
 - QT 5.15.2
-    - Add qmake path (eg. D:\Qt\5.15.2\msvc2019_64\bin) in to PATH environment variable. 
+    - Add qmake path (eg. D:\Qt\5.15.2\msvc2019_64\bin) in to `PATH` environment variable. 
   
-- [AMCAX Kernal](https://amcax.net/) 3.6.0
-  
+- [AMCAX Kernal](https://amcax.net/) 3.6.1
 
 ### Steps
 
@@ -148,7 +135,6 @@ The code structure for AMCAX daemon looks like below.
     </picture>
     <p align="center">Figure 3 Code Structure</p>
 </p>
-
 
 It's built upon AMCAX Kernel SDK and OpenGL. From bottom to top:
 

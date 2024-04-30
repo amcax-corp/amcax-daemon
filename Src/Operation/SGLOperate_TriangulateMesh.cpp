@@ -19,7 +19,7 @@ namespace acamcad
 		switch (adapter->dataType())
 		{
 		case DataType::MESH_TYPE:
-			AMCAX::SubD::MeshTool::MeshTriangles(adapter->mesh->mesh());
+			AMCAX::SubD::MeshTool::MeshTriangles(adapter->mesh->getShape());
 			result = true;
 			break;
 		default:

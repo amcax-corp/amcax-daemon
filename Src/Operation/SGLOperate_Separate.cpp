@@ -26,7 +26,7 @@ bool SGLOperate_Separate::DoOperate(AdapterObject* adapter)
 		std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 		//polymesh::meshSeparateEdges(mesh_object->mesh(), s_id_list);
 
-		result = AMCAX::SubD::MeshSeparate::SeparateEdges(adapter->mesh->mesh(), s_id_list);
+		result = AMCAX::SubD::MeshSeparate::SeparateEdges(adapter->mesh->getShape(), s_id_list);
 	}
 	break;
 	case DataType::TSPLINEU_TYPE:
@@ -34,7 +34,7 @@ bool SGLOperate_Separate::DoOperate(AdapterObject* adapter)
 		std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 
 		//result = true;
-		result = AMCAX::TMS::TMSplineSeparate().SeparateEdges(adapter->tSpline->getTSpline(), s_id_list);
+		result = AMCAX::TMS::TMSplineSeparate().SeparateEdges(adapter->tSpline->getShape(), s_id_list);
 
 	}
 	break;

@@ -19,10 +19,10 @@ namespace acamcad
 
 		AMCAX::TMS::TMSplineMakeCone cone(frame, radius_, height_, bottom_, rf_num_, vf_num_);
 
-		object->tSpline->setTSpline(cone.BuildSpline());
+		object->tSpline->setShape(cone.BuildSpline());
 
 		object->tSpline->updateDraw();
 
-		return true;
+		return object->tSpline->getShape();
 	}
 }

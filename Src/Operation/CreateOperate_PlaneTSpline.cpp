@@ -38,13 +38,13 @@ namespace acamcad
 		//AMCAX::SubD::MeshMakeRectangle mesh(p0, p1, segU_, segV_);
 
 
-		adapter->tSpline->setTSpline(mesh.BuildSpline());
+		adapter->tSpline->setShape(mesh.BuildSpline());
 		//brep_object->bRep->getShape() = AMCAX::MakeFace(AMCAX::Plane(), xmin, xmax, ymin, ymax);
 		//brep_object->bRep->updateDraw();
 
 		adapter->updateDraw();
 
-		return true;
+		return adapter->tSpline->getShape();
 	}
 
 }

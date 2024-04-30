@@ -22,10 +22,10 @@ bool SGLOperate_WeldEdge::DoOperate(AdapterObject* adapter)
 		{
 			std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 
-			result = AMCAX::SubD::MeshWeld::FilterVoidWeldEdges(adapter->mesh->mesh(), s_id_list);
+			result = AMCAX::SubD::MeshWeld::FilterVoidWeldEdges(adapter->mesh->getShape(), s_id_list);
 
 			if (result) {
-				AMCAX::SubD::MeshWeld::MeshWeldEdges(adapter->mesh->mesh(), s_id_list);
+				AMCAX::SubD::MeshWeld::MeshWeldEdges(adapter->mesh->getShape(), s_id_list);
 			}
 		}
 		break;
@@ -34,10 +34,10 @@ bool SGLOperate_WeldEdge::DoOperate(AdapterObject* adapter)
 			std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 
 			AMCAX::TMS::TMSplineWeld tool;
-			result = tool.FilterVoidWeldEdges(adapter->tSpline->getTSpline(), s_id_list);
+			result = tool.FilterVoidWeldEdges(adapter->tSpline->getShape(), s_id_list);
 
 			if (result) {
-				tool.WeldEdges(adapter->tSpline->getTSpline(), s_id_list);
+				tool.WeldEdges(adapter->tSpline->getShape(), s_id_list);
 				adapter->updateDraw();
 			}
 

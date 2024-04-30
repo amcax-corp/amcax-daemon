@@ -1,0 +1,407 @@
+﻿/*
+这是模仿office2013的白色风格主题
+start ribbon set
+*/
+
+/*SARibbonBar*/
+SARibbonBar {
+  background-color: white;
+  border: solid #707070;
+  color:#b2b2b2;
+}
+
+
+/*SARibbonQuickAccessBar*/
+SARibbonQuickAccessBar {
+  background-color: #cee8fc;
+}
+
+/*SARibbonCtrlContainer*/
+SARibbonCtrlContainer {
+  background-color: transparent;
+}
+
+
+/*SARibbonStackedWidget*/
+SARibbonStackedWidget {
+  border: 1pt solid #c5d2e0;
+  border-top-width: 0px;
+}
+
+SARibbonStackedWidget:focus {
+  outline: none;
+}
+
+
+/*
+SARibbonSeparatorWidget
+注意，SARibbonSeparatorWidget的背景颜色是使用color
+如果想给不同的部件下的分割线设置不同风格，可以使用如SARibbonCategory > SARibbonSeparatorWidget的方式，参考theme-dark2.qss
+*/
+SARibbonSeparatorWidget {
+  color: #bec0c2;
+}
+
+/*SARibbonCategory*/
+SARibbonCategory {
+  background-color: white;
+}
+SARibbonCategory:focus {
+  outline: none;
+}
+
+/*
+SARibbonCategory下的SARibbonSeparatorWidget
+注意，SARibbonSeparatorWidget的背景颜色是使用color
+*/
+SARibbonCategory > SARibbonSeparatorWidget {
+  color: #bec0c2;
+  margin-top:3px;
+  margin-bottom:3px;
+}
+
+/*SARibbonPannel*/
+
+SARibbonPannel {
+  background-color: white;
+  border: none;
+  color: #666666;
+}
+
+SARibbonPannel > SARibbonButtonGroupWidget {
+  border: 1px solid #c2d0df;
+}
+/*SARibbonButtonGroupWidget*/
+SARibbonButtonGroupWidget {
+  background-color: transparent;
+}
+
+/*SARibbonPannelLabel Pannel下标题栏*/
+
+SARibbonPannelLabel {
+    background-color: transparent;
+    color: #666666;
+}
+
+/*SARibbonPannelOptionButton*/
+
+SARibbonPannelOptionButton {
+  background-color: transparent;
+  color: #333;
+}
+
+SARibbonPannelOptionButton:hover {
+  background-color: #cee7fc;
+  border: 0px;
+}
+
+
+/*SARibbonApplicationButton*/
+SARibbonApplicationButton {
+  color: white;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  background-color: #2b579a;
+}
+
+SARibbonApplicationButton:hover {
+  background-color: #5888d0;
+}
+
+SARibbonApplicationButton:pressed {
+  background-color: #3369b9;
+}
+
+SARibbonApplicationButton:focus {
+  outline: none;
+}
+
+SARibbonApplicationButton::menu-indicator {
+  /*subcontrol-position: right;*/
+  width:0px;
+}
+
+/*SARibbonTabBar*/
+SARibbonTabBar {
+  background-color: transparent;
+}
+
+
+SARibbonTabBar::tab {
+  color: #5779af;
+  border: 1px solid transparent;
+  background: transparent;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-left: 5px;
+  margin-bottom: 0px;
+  min-width: 50px;
+  min-height: 25px;
+}
+
+SARibbonTabBar::tab:selected {
+  color: #5779af;
+  background: white;
+  /*border: 1px solid #c5d2e0;*/
+  border-top:1px solid #c5d2e0;
+  border-right:1px solid #c5d2e0;
+  border-left:1px solid #c5d2e0;
+  border-bottom:1px solid white;
+}
+
+SARibbonTabBar::tab:hover:!selected {
+    color: #5779af;
+    background: white;
+    /*border: 1px solid #c5d2e0;*/
+    border-top:1px solid #c5d2e0;
+    border-right:1px solid #c5d2e0;
+    border-left:1px solid #c5d2e0;
+    border-bottom:1px solid white;
+}
+
+
+/*SARibbonToolButton*/
+/* 
+SARibbonToolButton的背景颜色必须和pannel或者category的颜色一致
+不能设置为transparent，否则在ActionMenu模式下，上下区分的按钮无法显示 
+*/
+SARibbonToolButton {
+  border: none;
+  color: #333;
+  background-color: white;
+}
+
+SARibbonToolButton:focus {
+  border: 1px solid #b9defa;
+  color: #333;
+  background-color: #fcfdfe;
+}
+
+SARibbonToolButton:pressed {
+  color: #000;
+  border: 1px solid #269bf4;
+  background-color: #9ed2f9;
+}
+
+SARibbonToolButton:checked {
+  color: #333;
+  border: 1px solid #b9defa;
+  background-color: #cee8fc;
+}
+
+SARibbonToolButton:hover {
+  color: #000;
+  border: 1px solid #badffa;
+  background-color: #cee7fc;
+}
+
+/*SARibbonControlButton*/
+
+SARibbonControlButton {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: #333;
+}
+
+SARibbonControlButton:pressed {
+  border: 1px solid #269bf4;
+  background-color: #9ed2f9;
+}
+
+SARibbonControlButton:checked {
+  border: 1px solid #b9defa;
+  background-color: #cee8fc;
+}
+
+SARibbonControlButton:hover {
+  border: 1px solid #badffa;
+  background-color: #cee7fc;
+}
+SARibbonControlButton#SARibbonGalleryButtonUp, #SARibbonGalleryButtonDown, #SARibbonGalleryButtonMore {
+  border: 1px solid #cee8fc;
+}
+
+
+
+
+/*SARibbonMenu*/
+
+SARibbonMenu {
+  color: #333;
+  background-color: #FCFCFC;
+  border: 1px solid #c2d0df;
+}
+
+SARibbonMenu::item {
+  padding: 5px 5px 5px 5px;
+  background-color: transparent;
+}
+
+SARibbonMenu::item:selected {
+  background-color: #cee8fc;
+}
+
+SARibbonMenu::item:hover {
+  color: #000;
+  background-color: #cee7fc;
+  border: 1px solid #badffa;
+}
+
+SARibbonMenu::icon {
+  margin-left: 1px;
+}
+
+
+
+/*SARibbonGallery*/
+
+SARibbonGallery {
+  border: 1px solid #c2d0df;
+  background-color: transparent;
+  color: #333;
+}
+
+/*SARibbonGalleryGroup*/
+
+SARibbonGalleryGroup {
+  show-decoration-selected: 1;
+  background-color: transparent;
+  color: #333;
+  border: 1px solid #c2d0df;
+}
+
+SARibbonGalleryGroup::item:selected {
+  background-color: #9ed2f9;
+  color: black;
+}
+
+SARibbonGalleryGroup::item:hover {
+  border: 1px solid #badffa;
+  background-color: #cee7fc;
+}
+
+/*RibbonGalleryViewport*/
+
+SARibbonGalleryViewport {
+  background-color: #ffffff;
+}
+
+/*SARibbonLineEdit*/
+
+SARibbonLineEdit {
+  border: 1px solid #C0C2C4;
+  background: #FFF;
+  selection-background-color: #9BBBF7;
+  selection-color: #000;
+}
+
+/*SARibbonComboBox*/
+
+SARibbonComboBox {
+  border: 1px solid #c2d0df;
+  background-color: white;
+}
+
+SARibbonComboBox:hover {
+  border: 1px solid #269bf4;
+  color: #000;
+}
+
+SARibbonComboBox:editable {
+  color: #000;
+  background: white;
+  selection-background-color: #9BBBF7;
+  selection-color: #000;
+}
+
+SARibbonComboBox::drop-down {
+  subcontrol-origin: padding;
+  subcontrol-position: top right;
+  width: 1em;
+  border: none;
+}
+
+SARibbonComboBox::drop-down:hover {
+  border: 1px solid #FDEEB3;
+  background-color: #9ed2f9;
+}
+
+SARibbonComboBox::down-arrow {
+  image: url(:/image/resource/ArrowDown.png);
+}
+
+/*SARibbonSeparatorWidget*/
+
+SARibbonSeparatorWidget {
+  /*background-color: transparent;*/
+  background-color: white;
+}
+
+SARibbonCategoryScrollButton {
+  border: 1px solid #c5d2e0;
+  color: #333;
+  background-color: white;
+}
+
+SARibbonCategoryScrollButton[arrowType="3"] {
+  border-right-width: 1px;
+}
+
+SARibbonCategoryScrollButton[arrowType="4"] {
+  border-left-width: 1px;
+}
+
+SARibbonCategoryScrollButton:hover {
+  color: #000000;
+  background-color: #cee7fc;
+}
+
+
+/*SARibbonSystemToolButton*/
+
+SARibbonSystemToolButton {
+  background-color: transparent; 
+  border:none;
+}
+
+SARibbonSystemToolButton:focus {
+  outline: none;
+}
+/*Min*/
+SARibbonSystemToolButton#SAMinimizeWindowButton {
+  background-position:center;
+  background-repeat: no-repeat;
+  background-image: url(:/image/resource/Titlebar_Min.svg);
+}
+SARibbonSystemToolButton#SAMinimizeWindowButton:hover{
+  background-color: #e5e5e5;
+}
+SARibbonSystemToolButton#SAMinimizeWindowButton:pressed{
+  background-color: #cacacb;
+}
+/*Max*/
+SARibbonSystemToolButton#SAMaximizeWindowButton {
+    background-position:center;
+    background-repeat: no-repeat;
+    background-image: url(:/image/resource/Titlebar_Max.svg);
+}
+SARibbonSystemToolButton#SAMaximizeWindowButton:hover {
+    background-color: #e5e5e5;
+}
+SARibbonSystemToolButton#SAMaximizeWindowButton:checked {
+    background-image: url(:/image/resource/Titlebar_Normal.svg) center;
+}
+
+
+/*Close*/
+SARibbonSystemToolButton#SACloseWindowButton {
+    background-position:center;
+    background-repeat: no-repeat;
+    background-image: url(:/image/resource/Titlebar_Close.svg);
+}
+SARibbonSystemToolButton#SACloseWindowButton:hover {
+  background-color: #e81123;
+}
+SARibbonSystemToolButton#SACloseWindowButton:pressed {
+    background-color: #f1707a;
+}

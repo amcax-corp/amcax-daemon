@@ -29,7 +29,7 @@ bool SGLOperate_Delete::DoOperate(AdapterObject* adapter)
 		}
 		std::vector<int> s_id_list = getSelectSubList(s_info_list_);
 		result = true;
-		AMCAX::SubD::MeshReduce::DeleteFaces(adapter->mesh->mesh(), s_id_list);
+		AMCAX::SubD::MeshReduce::DeleteFaces(adapter->mesh->getShape(), s_id_list);
 	}
 	break;
 	case DataType::TSPLINEU_TYPE:
@@ -45,10 +45,10 @@ bool SGLOperate_Delete::DoOperate(AdapterObject* adapter)
 
 			AMCAX::TMS::TMSplineReduce reduce;
 
-			result = reduce.CanRemoveVertices(adapter->tSpline->getTSpline(), s_id_list);
+			result = reduce.CanRemoveVertices(adapter->tSpline->getShape(), s_id_list);
 
 			if (result) {
-				reduce.RemoveEdges(adapter->tSpline->getTSpline(), s_id_list);
+				reduce.RemoveEdges(adapter->tSpline->getShape(), s_id_list);
 			}
 		}
 		break;
@@ -60,10 +60,10 @@ bool SGLOperate_Delete::DoOperate(AdapterObject* adapter)
 
 			AMCAX::TMS::TMSplineReduce reduce;
 
-			result = reduce.CanRemoveEdges(adapter->tSpline->getTSpline(), s_id_list);
+			result = reduce.CanRemoveEdges(adapter->tSpline->getShape(), s_id_list);
 
 			if (result) {
-				reduce.RemoveEdges(adapter->tSpline->getTSpline(), s_id_list);
+				reduce.RemoveEdges(adapter->tSpline->getShape(), s_id_list);
 			}
 		}
 		break;
@@ -75,10 +75,10 @@ bool SGLOperate_Delete::DoOperate(AdapterObject* adapter)
 
 			AMCAX::TMS::TMSplineReduce reduce;
 
-			result = reduce.CanDeleteFaces(adapter->tSpline->getTSpline(), s_id_list);
+			result = reduce.CanDeleteFaces(adapter->tSpline->getShape(), s_id_list);
 
 			if (result) {
-				reduce.DeleteFaces(adapter->tSpline->getTSpline(), s_id_list);
+				reduce.DeleteFaces(adapter->tSpline->getShape(), s_id_list);
 			}
 		}
 		break;

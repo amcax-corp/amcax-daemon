@@ -370,7 +370,8 @@ AMCAX::Coord3 acamcad::SelectTool::getCenter()
 
 void SelectTool::clearSelected()
 {
-	dataManager_->clearSelected();
+	if(dataManager_)
+		dataManager_->clearSelected();
 
 	select_info_list_.clear();
 	select_infoCamera_list_.clear();

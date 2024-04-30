@@ -59,10 +59,10 @@ bool acamcad::SGLOperate_ChamferEdge::DoOperate(AdapterObject* brep_object)
 	{
 		AMCAX::TMS::TMSplineSampleChamfer tool(0.1);
 
-		result = tool.CanEdgesSampleChamfer(brep_object->tSpline->getTSpline(), s_id_list);
+		result = tool.CanEdgesSampleChamfer(brep_object->tSpline->getShape(), s_id_list);
 
 		if (result) {
-			tool.SampleChamfer(brep_object->tSpline->getTSpline(), s_id_list);
+			tool.SampleChamfer(brep_object->tSpline->getShape(), s_id_list);
 			brep_object->updateDraw();
 		}
 	}
