@@ -18,12 +18,12 @@
 #include "../Core/CoreDefine.h"
 #include "../Core/ACAMCore.h"
 #include "RenderViewer.h"
-#include "ACAMWindow.h"
 
 #include <cmath>
 #include <algorithm>
 #include <utility>
 #include <tuple>
+#include <qaction.h>
 
 using namespace acamcad;
 
@@ -70,6 +70,6 @@ void RenderViewer::BRepObjectOperation(const SelectModel& s_model,
 }
 
 
-void RenderViewer::disconnectDialog() {
-	disconnect(dialog, &ParamDialog::dataReady, this, nullptr);
-}
+//void RenderViewer::disconnectDialog() {
+//	disconnect(dialog, &ParamDialog::dataReady, this, nullptr);
+//}

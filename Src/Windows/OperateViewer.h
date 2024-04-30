@@ -20,8 +20,7 @@
 #include "../Object/ObjectDefine.h"
 #include "AxisOperate.h"
 #include "../Core/CoreDefine.h"
-#include "ParamDialog.h"
-#include "../record/Record.h"
+//#include "ParamDialog.h"
 
 namespace acamcad
 {

@@ -58,11 +58,11 @@ acamcad::BaseObject* acamcad::MultOperate_Combine::operate()
 	{
 		AdapterObject* adapter_object = new AdapterObject;
 		adapter_object->setDataType(acamcad::DataType::MESH_TYPE);
-		adapter_object->mesh->assignMesh();
+		adapter_object->mesh->assignShape();
 
 		for (int i = 0; i < objectList_.size(); i++) {
 			AdapterObject* bobj = objectList_[i];
-			AMCAX::SubD::MeshCopy::CombineMesh(adapter_object->mesh->mesh(), bobj->mesh->mesh());
+			AMCAX::SubD::MeshCopy::CombineMesh(adapter_object->mesh->getShape(), bobj->mesh->getShape());
 		}
 		adapter_object->updateDraw();
 		return adapter_object;
@@ -72,11 +72,11 @@ acamcad::BaseObject* acamcad::MultOperate_Combine::operate()
 	{
 		AdapterObject* adapter_object = new AdapterObject;
 		adapter_object->setDataType(acamcad::DataType::TSPLINEU_TYPE);
-		adapter_object->tSpline->assignTSpline();
+		adapter_object->tSpline->assignShape();
 
 		for (int i = 0; i < objectList_.size(); i++) {
-			AMCAX::TMS::TMSplineCopy().AppendToTMSpline(adapter_object->tSpline->getTSpline(),
-				objectList_[i]->tSpline->getTSpline());
+			AMCAX::TMS::TMSplineCopy().AppendToTMSpline(adapter_object->tSpline->getShape(),
+				objectList_[i]->tSpline->getShape());
 		}
 		adapter_object->updateDraw();
 		return adapter_object;

@@ -18,6 +18,9 @@
 #include "BaseObject.h"
 
 #include <memory>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 #include <common/CoordT.hpp>
 #include <common/VectorT.hpp>
@@ -52,7 +55,6 @@ namespace acamcad
 		virtual void mesh_OPvert_Backup();
 		virtual void meshMove(const AMCAX::Coord3& v, double dis);
 
-		//在有了原来的顶点之后，所有的缩放都是一样的，没有体，边，面，点的区别了。
 		void meshScaleSingle(const AMCAX::Coord3& center, const AMCAX::Coord3& axis, double scale);
 		void meshScalePlane(const AMCAX::Coord3& center, const AMCAX::Coord3& normal, double scale);
 		void meshRotation(const AMCAX::Coord3& center, const AMCAX::Coord3& axis, double angle);
@@ -72,6 +74,11 @@ namespace acamcad
 		//virtual void doOperate(MOperation* operate) override;
 		virtual void updateDraw() override;
 		const virtual ObjectDraw* getDrawTool() const override;
+
+		bool writeStream(std::ostringstream& out);
+		bool readStream(std::istringstream& in);
+
+		AdapterObject* duplicateFaces(std::vector<int>& vec);
 
 	public:
 		std::unique_ptr<BRepObject> bRep;

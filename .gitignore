@@ -1,8 +1,8 @@
+# vs
 /.vs
 /.vscode
 /out
 /build
-Version.aps
 
 # AMCAX Kernel
 /AMCAX/
@@ -10,3 +10,5 @@ Version.aps
 # Visual Studio CMake
 CMakeUserPresets.json
 
+# Projects
+Version.aps

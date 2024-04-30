@@ -42,7 +42,7 @@ namespace acamcad
 	void TSplineObjectDraw::draw(const DrawModel& dmodel, bool is_show_point) const
 	{
 		bool is_selected = parent_->isSelect();
-		auto mesh = parent_->tSpline->getTSpline();
+		auto mesh = parent_->tSpline->getShape();
 
 		if (mesh == nullptr) { return; }
 		if (mesh->numVertices() == 0) { return; }
@@ -97,7 +97,7 @@ namespace acamcad
 
 	void TSplineObjectDraw::drawSelected(const SelectModel& s_model, int s_id) const
 	{
-		auto mesh = parent_->tSpline->getTSpline();
+		auto mesh = parent_->tSpline->getShape();
 
 		if (s_model == SelectModel::VERTEX_MODEL)
 		{
@@ -212,7 +212,7 @@ namespace acamcad
 		if (!parent_->isVisible())
 			return;
 
-		auto mesh = parent_->tSpline->getTSpline();
+		auto mesh = parent_->tSpline->getShape();
 
 		if (mesh == nullptr) { return; }
 		if (mesh->numVertices() == 0) { return; }
@@ -231,7 +231,7 @@ namespace acamcad
 	}
 	void TSplineObjectDraw::drawWithFaceID() const
 	{
-		auto mesh = parent_->tSpline->getTSpline();
+		auto mesh = parent_->tSpline->getShape();
 
 		int size = mesh->numFaces();
 		for (int i = 0; i < size; i++) {
@@ -252,7 +252,7 @@ namespace acamcad
 
 	void TSplineObjectDraw::drawWithEdgeID() const
 	{
-		auto mesh = parent_->tSpline->getTSpline();
+		auto mesh = parent_->tSpline->getShape();
 
 		for (int i = 0; i < mesh->numEdges(); i++)
 		{
@@ -274,7 +274,7 @@ namespace acamcad
 
 	void TSplineObjectDraw::drawWithVertexID() const
 	{
-		auto mesh = parent_->tSpline->getTSpline();
+		auto mesh = parent_->tSpline->getShape();
 
 		for (int i = 0; i < mesh->numVertices(); i++)
 		{
@@ -556,7 +556,7 @@ namespace acamcad
 		if (!parent_->tSpline)
 			return;
 
-		auto spl = parent_->tSpline->getTSpline();
+		auto spl = parent_->tSpline->getShape();
 
 		if (spl == nullptr)
 		{
@@ -736,10 +736,10 @@ namespace acamcad
 	void TSplineObjectDraw::initMesh(int subtime)
 	{
 
-		if (tsp_mesh_ == nullptr && parent_->tSpline->getTSpline())
+		if (tsp_mesh_ == nullptr && parent_->tSpline->getShape())
 		{
 
-			tsp_mesh_ = std::make_unique<AMCAX::TMS::TMSplineMeshing>(parent_->tSpline->getTSpline(), subtime);
+			tsp_mesh_ = std::make_unique<AMCAX::TMS::TMSplineMeshing>(parent_->tSpline->getShape(), subtime);
 		}
 	}
 

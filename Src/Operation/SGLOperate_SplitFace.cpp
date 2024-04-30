@@ -17,10 +17,10 @@ namespace acamcad
 
 		AMCAX::TMS::TMSplineSplit tool;
 
-		bool result = tool.CanSplitFacesCross(adapter->tSpline->getTSpline(), ids);
+		bool result = tool.CanSplitFacesCross(adapter->tSpline->getShape(), ids);
 
 		if (result) {
-			tool.SplitFacesCross(adapter->tSpline->getTSpline(), ids);
+			tool.SplitFacesCross(adapter->tSpline->getShape(), ids);
 			adapter->updateDraw();
 		}
 

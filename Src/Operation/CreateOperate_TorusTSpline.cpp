@@ -19,10 +19,10 @@ namespace acamcad
 		AMCAX::Frame3 frame(p, dir);
 		AMCAX::TMS::TMSplineMakeTorus torus(frame, radiusMajor_, radiusMinor_, segMajor_, segMinor_);
 
-		object->tSpline->setTSpline(torus.BuildSpline());
+		object->tSpline->setShape(torus.BuildSpline());
 
 		object->tSpline->updateDraw();
 
-		return true;
+		return object->tSpline->getShape();
 	}
 }

@@ -8,6 +8,11 @@
 #include <polymesh/PolyMesh.hpp>
 #include <polymeshAPI/MeshTool.hpp>
 #include <tmeshSplineAPI/TMSplineTool.hpp>
+#include <io/ShapeTool.hpp>
+#include <polymesh/PolyMeshIO.hpp>
+#include <tmeshSpline/TMSplineIO.hpp>
+#include <polymeshAPI/MeshCopy.hpp>
+#include <tmeshSplineAPI/TMSplineCopy.hpp>
 
 namespace acamcad
 {
@@ -267,7 +272,7 @@ namespace acamcad
 		break;
 		case acamcad::DataType::MESH_TYPE:
 		{
-			auto box = AMCAX::SubD::MeshTool::MeshBoundingBox(mesh->mesh());
+			auto box = AMCAX::SubD::MeshTool::MeshBoundingBox(mesh->getShape());
 
 			min = box.CornerMin().Coord();
 			max = box.CornerMax().Coord();
@@ -276,7 +281,7 @@ namespace acamcad
 		case acamcad::DataType::TSPLINEU_TYPE:
 		{
 			AMCAX::BoundingBox3 box;
-			AMCAX::TMS::TMSplineTool::UpdateTMSplineBndBox(tSpline->getTSpline(), box);
+			AMCAX::TMS::TMSplineTool::UpdateTMSplineBndBox(tSpline->getShape(), box);
 
 			min = box.CornerMin().Coord();
 			max = box.CornerMax().Coord();
@@ -301,12 +306,12 @@ namespace acamcad
 		break;
 		case acamcad::DataType::MESH_TYPE:
 		{
-			auto vs = AMCAX::SubD::MeshTool::FaceVertexIndexs(mesh->mesh(), face_id);
+			auto vs = AMCAX::SubD::MeshTool::FaceVertexIndexs(mesh->getShape(), face_id);
 			double x_min(0), y_min(0), z_min(0), x_max(0), y_max(0), z_max(0);
 
 			for (int i = 0; i < vs.size(); i++)
 			{
-				auto& p = AMCAX::SubD::MeshTool::Position(mesh->mesh(), vs[i]);
+				auto& p = AMCAX::SubD::MeshTool::Position(mesh->getShape(), vs[i]);
 
 				if (i == 0)
 				{
@@ -336,12 +341,12 @@ namespace acamcad
 		break;
 		case acamcad::DataType::TSPLINEU_TYPE:
 		{
-			auto ids = AMCAX::TMS::TMSplineTool::FaceVertexIndexs(tSpline->getTSpline(), face_id);
+			auto ids = AMCAX::TMS::TMSplineTool::FaceVertexIndexs(tSpline->getShape(), face_id);
 			double x_min(0), y_min(0), z_min(0), x_max(0), y_max(0), z_max(0);
 
 			for (int i = 0; i < ids.size(); i++)
 			{
-				auto& p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getTSpline(), ids[i]);
+				auto& p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), ids[i]);
 				if (i == 0)
 				{
 					x_min = x_max = p.X();
@@ -385,9 +390,9 @@ namespace acamcad
 		case acamcad::DataType::MESH_TYPE:
 		{
 			int v0, v1;
-			AMCAX::SubD::MeshTool::EdgeVertexIndexs(mesh->mesh(), edge_id, v0, v1);
-			auto& p0 = AMCAX::SubD::MeshTool::Position(mesh->mesh(), v0),
-				& p1 = AMCAX::SubD::MeshTool::Position(mesh->mesh(), v1);
+			AMCAX::SubD::MeshTool::EdgeVertexIndexs(mesh->getShape(), edge_id, v0, v1);
+			auto& p0 = AMCAX::SubD::MeshTool::Position(mesh->getShape(), v0),
+				& p1 = AMCAX::SubD::MeshTool::Position(mesh->getShape(), v1);
 
 			min.SetCoord(std::min(p0.X(), p1.X()), std::min(p0.Y(), p1.Y()), std::min(p0.Z(), p1.Z()));
 			max.SetCoord(std::max(p0.X(), p1.X()), std::max(p0.Y(), p1.Y()), std::max(p0.Z(), p1.Z()));
@@ -400,9 +405,9 @@ namespace acamcad
 		case acamcad::DataType::TSPLINEU_TYPE:
 		{
 			int v0, v1;
-			AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(tSpline->getTSpline(), edge_id, v0, v1);
-			auto p0 = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getTSpline(), v0),
-				p1 = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getTSpline(), v1);
+			AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(tSpline->getShape(), edge_id, v0, v1);
+			auto p0 = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), v0),
+				p1 = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), v1);
 
 
 			min.SetCoord(std::min(p0.X(), p1.X()), std::min(p0.Y(), p1.Y()), std::min(p0.Z(), p1.Z()));
@@ -430,14 +435,14 @@ namespace acamcad
 		break;
 		case acamcad::DataType::MESH_TYPE:
 		{
-			auto& p = AMCAX::SubD::MeshTool::Position(mesh->mesh(), vetex_id);
+			auto& p = AMCAX::SubD::MeshTool::Position(mesh->getShape(), vetex_id);
 
 			position = p.Coord();
 		}
 		break;
 		case acamcad::DataType::TSPLINEU_TYPE:
 		{
-			auto& p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getTSpline(), vetex_id);
+			auto& p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), vetex_id);
 			position = p.Coord();
 		}
 		break;
@@ -498,6 +503,127 @@ namespace acamcad
 
 		if (tSpline)
 			tSpline->updateDraw();
+	}
+
+	bool AdapterObject::writeStream(std::ostringstream& out)
+	{
+		bool bResult = false;
+		switch (dataType())
+		{
+		case DataType::BREP_TYPE:
+		{
+			if (!bRep->getShape().IsNull())
+			{
+				bResult = true;
+				AMCAX::ShapeTool::Write(bRep->getShape(), out);
+			}
+			//data.data = fout.str().c_str();
+
+
+		}
+		break;
+		case DataType::MESH_TYPE:
+		{
+			bResult = AMCAX::SubD::PolyMeshIO::WriteMeshStreamOBJ(out, mesh->getShape());
+
+		}
+		break;
+		case DataType::TSPLINEU_TYPE:
+		{
+			AMCAX::TMS::TMSplineIO io;
+
+			bResult = io.WriteTMSplineStream(out, tSpline->getShape());
+		}
+		break;
+		default:
+			break;
+		}
+
+		return bResult;
+	}
+
+
+	bool AdapterObject::readStream(std::istringstream& in)
+	{
+		bool bResult = false;
+
+		switch (dataType())
+		{
+		case DataType::BREP_TYPE:
+		{
+			//std::istringstream fin(query2.value(2).toString().toStdString());
+			AMCAX::TopoShape shape;
+			AMCAX::ShapeTool::Read(shape, in);
+
+			if (shape.IsNull())
+			{
+				break;
+			}
+
+			bResult = true;
+
+			bRep->SetShape(shape);
+		}
+		break;
+		case DataType::MESH_TYPE:
+		{
+			mesh->assignShape();
+			//std::istringstream fin(query2.value(2).toString().toStdString());
+			bResult = AMCAX::SubD::PolyMeshIO::LoadMeshStreamOBJ(in, mesh->getShape());
+		}
+		break;
+		case DataType::TSPLINEU_TYPE:
+		{
+			tSpline->assignShape();
+
+			//std::istringstream fin(query2.value(2).toString().toStdString());
+
+			AMCAX::TMS::TMSplineIO io;
+			bResult = io.LoadTMSplineStream(in, tSpline->getShape());
+		}
+		break;
+		default:
+			break;
+		}
+
+		return bResult;
+	}
+
+	AdapterObject* AdapterObject::duplicateFaces(std::vector<int>& vec)
+	{
+		std::sort(vec.begin(), vec.end(), std::greater<int>());
+		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+
+		AdapterObject* object = nullptr;
+
+		switch (dataType())
+		{
+		case DataType::MESH_TYPE:
+		{
+			object = new AdapterObject;
+			object->setDataType(dataType());
+
+			object->mesh->setShape(AMCAX::SubD::MeshCopy::ExtractMeshFaces(mesh->getShape(),
+				vec));
+
+		}
+		break;
+		case DataType::TSPLINEU_TYPE:
+		{
+			object = new AdapterObject;
+			object->setDataType(dataType());
+
+			AMCAX::TMS::TMSplineCopy tool;
+
+			object->tSpline->setShape(tool.ExtractTMSplineFace(tSpline->getShape(),
+				vec));
+		}
+		break;
+		default:
+			break;
+		}
+
+		return object;
 	}
 
 

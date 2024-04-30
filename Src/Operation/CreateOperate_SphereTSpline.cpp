@@ -29,17 +29,19 @@ namespace acamcad
 	{
 		//brep_object->bRep->getShape() = AMCAX::MakeSphere(AMCAX::Point3(center_[0], center_[1], center_[2]), radius_, angle1_);
 		//brep_object->updateDraw();
-		AMCAX::TMS::TMSplineMakeSphere sphre(radius_, segR_, segV_);
+		AMCAX::Frame3 frame(AMCAX::Point3(center_), AMCAX::Direction3(0.0, 0.0, 1.0));
 
-		adapter->tSpline->setTSpline(sphre.BuildSpline());
+		AMCAX::TMS::TMSplineMakeSphere sphre(frame, radius_, segR_, segV_);
 
-		adapter->mesh_OPvert_Backup();
-		adapter->meshMove(center_, AMCAX::Point3(center_).Distance(AMCAX::Point3(0.0, 0.0, 0.0)));
-		adapter->mesh_Clear_OPvertBackup();
+		adapter->tSpline->setShape(sphre.BuildSpline());
+
+		//adapter->mesh_OPvert_Backup();
+		//adapter->meshMove(center_, AMCAX::Point3(center_).Distance(AMCAX::Point3(0.0, 0.0, 0.0)));
+		//adapter->mesh_Clear_OPvertBackup();
 
 		adapter->updateDraw();
 
-		return true;
+		return adapter->tSpline->getShape();
 	}
 
 

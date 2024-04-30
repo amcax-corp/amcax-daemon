@@ -36,14 +36,14 @@ bool SGLOperate_ExtrudeFace::DoOperate(AdapterObject* object)
 			//std::vector<int> faces = AMCAX::SubD::MeshTool::EdgeFaceIndexs(object->mesh->mesh(),
 			//	s_id_list[i]);
 
-			AMCAX::Vector3 nor = AMCAX::SubD::MeshTool::FaceNormal(object->mesh->mesh(), s_id_list[i]);
+			AMCAX::Vector3 nor = AMCAX::SubD::MeshTool::FaceNormal(object->mesh->getShape(), s_id_list[i]);
 
 			dire_ += nor.Coord();
 		}
 
 		dire_.Normalize();
 
-		result = AMCAX::SubD::MeshExtrude::ExtrudeFace(object->mesh->mesh(),
+		result = AMCAX::SubD::MeshExtrude::ExtrudeFace(object->mesh->getShape(),
 			s_id_list, s_id_list_new);
 
 
@@ -68,7 +68,7 @@ bool SGLOperate_ExtrudeFace::DoOperate(AdapterObject* object)
 
 			//AMCAX::TMS::TMSplineTool::ControlFaceNormal(adapter->tSpline->getTSpline(), faces[0]);
 
-			AMCAX::Vector3 nor = AMCAX::TMS::TMSplineTool::ControlFaceNormal(object->tSpline->getTSpline(), s_id_list[i]);
+			AMCAX::Vector3 nor = AMCAX::TMS::TMSplineTool::ControlFaceNormal(object->tSpline->getShape(), s_id_list[i]);
 
 			dire_ += nor.Coord();
 		}
@@ -76,11 +76,11 @@ bool SGLOperate_ExtrudeFace::DoOperate(AdapterObject* object)
 		dire_.Normalize();
 		AMCAX::TMS::TMSplineExtrude tool;
 
-		result = tool.CanExtrudeFaces(object->tSpline->getTSpline(), s_id_list);
+		result = tool.CanExtrudeFaces(object->tSpline->getShape(), s_id_list);
 
 		if (result)
 		{
-			tool.ExtrudeFaces(object->tSpline->getTSpline(), s_id_list, s_id_list_new);
+			tool.ExtrudeFaces(object->tSpline->getShape(), s_id_list, s_id_list_new);
 
 			s_info_list_.resize(s_id_list_new.size());
 			for (int i = 0; i < s_id_list_new.size(); i++)

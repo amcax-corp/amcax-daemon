@@ -20,21 +20,36 @@
 
 #include "CoreDefine.h"
 #include "../Object/ObjectDefine.h"
-#include "../Record/Record.h"
 
 #include <common/CoordT.hpp>
 
+#define FILE_EXT_AMCAX "amcax"
+#define FILE_EXT_AMCAX_BREP "abr"
+#define FILE_EXT_AMCAX_TMS "tms"
+#define FILE_EXT_AMCAX_SUBD "obj"
+#define FILE_AMCAX_CONTROL "control.json"
+#define FILE_EXT_STEP "step"
+#define FILE_EXT_STP "stp"
+
 namespace acamcad
 {
-	const QString FILE_EXT_AMCAX_BREP("abr");
-	const QString FILE_EXT_STEP("step");
-	const QString FILE_EXT_STP("stp");
+	//const QString FILE_EXT_AMCAX("amcax");
+	//const QString FILE_EXT_AMCAX_BREP("abr");
+	//const QString FILE_EXT_STEP("step");
+	//const QString FILE_EXT_STP("stp");
 
 	class DataManager;
 	//class BackupManager;
 	class MOperate_SingleObject;
 	class MultOperate;
 	class UndoRedoHandler;
+
+	class AMCoreListener
+	{
+	public:
+		virtual void refresh_title(QString title) = 0;
+		virtual void refresh_file(QString title) = 0;
+	};
 
 	class AMCore : public QObject
 	{
@@ -43,32 +58,43 @@ namespace acamcad
 	public:
 		AMCore();
 
+		void setListener(AMCoreListener* listener)
+		{
+			listener_ = listener;
+		}
+
+
 		void init();
 
 		~AMCore();
 
+
+		void loadObjectsFromFile(const QString& filename);
+
 	public slots:
 		void loadObjects();
 		void saveObjects();
-		void saveObjects(const QString& filename);
+		bool saveObjects(const QString& filename);
 		void saveSelectedObjects();
+		bool newObjects();
+		void saveAsObjects();
 
 	private:
-		void loadObjectsFromFile(const QString& filename);
+		bool loadObjectsFromFile1(const QString& filename);
 
 	private:
-		void saveObjectsToFile(const QString& filename, std::vector<acamcad::AdapterObject*>::const_iterator& it_begin, std::vector<acamcad::AdapterObject*>::const_iterator& it_end);
+		bool saveObjectsToFile(const QString& filename, std::vector<acamcad::AdapterObject*>::const_iterator& it_begin, std::vector<acamcad::AdapterObject*>::const_iterator& it_end);
 
 	public:
 
 
 		//=============== BRep =======
-		void createBRepObject(acamcad::MOperation* operate, const std::string& label);
+		void createObject(acamcad::MOperation* operate, acamcad::DataType type, const std::string& label="");
 		int getLastPersistentId();
 
-		void createPlaneBRepObject(const AMCAX::Coord3& first, const AMCAX::Coord3& second, const std::string& label = "");
+		void createPlaneBRepObject(const AMCAX::Coord2& first, const AMCAX::Coord2& second, const std::string& label = "");
 		void createCubeBRepObject(const AMCAX::Coord3& first, const AMCAX::Coord3& second, const std::string& label = "");
-		void createSphereBRepObject(const AMCAX::Coord3& center, double radius, double angle1, double angle2, double angle3, const std::string& label = "");
+		void createSphereBRepObject(const AMCAX::Coord3& center, double radius, double angle1, const std::string& label = "");
 		void createCylinderBRepObject(const AMCAX::Coord3& b_center, const AMCAX::Coord3& axis, double radius, double height, double angle, const std::string& label = "");
 		void createCylinderBRepObject(const AMCAX::Coord3& b_center, const AMCAX::Coord3& axis, const AMCAX::Coord3& xaxis, double radius, double height, double angle, const std::string& label = "");
 		void createConeBRepObject(const AMCAX::Coord3& b_center, const AMCAX::Coord3& axis, double radiusR, double radiusr, double height, double angle, const std::string& label = "");
@@ -88,12 +114,12 @@ namespace acamcad
 		void createWedgeBRepObject(const AMCAX::Coord3& center, const AMCAX::Coord3& axis, const double dx, const double dy, const double dz, const double xmin, const double zmin, const double xmax, const double zmax, const std::string& label = "");
 
 		//Mesh
-		void createPlaneMeshObject(MPoint3& p0, MPoint3& p1, size_t u_num, size_t v_num);
-		void createCubeMeshObject(const MPoint3& first, const MPoint3& second, size_t x_num = 2, size_t y_num = 2, size_t z_num = 2);
+		void createPlaneMeshObject(AMCAX::Coord2& p0, AMCAX::Coord2& p1, size_t u_num, size_t v_num);
+		void createCubeMeshObject(const AMCAX::Coord3& first, const AMCAX::Coord3& second, size_t x_num = 2, size_t y_num = 2, size_t z_num = 2);
 
 		//TSpline
-		void createPlaneObject(MPoint3& p0, MPoint3& p1, size_t u_num, size_t v_num);
-		void createCubeObject(const MPoint3& first, const MPoint3& second, size_t x_num, size_t y_num, size_t z_num);
+		void createPlaneObject(AMCAX::Coord2& p0, AMCAX::Coord2& p1, size_t u_num, size_t v_num);
+		void createCubeObject(const AMCAX::Coord3& first, const AMCAX::Coord3& second, size_t x_num, size_t y_num, size_t z_num);
 		void createUVSphereObject(const MPoint3& center, double radius, size_t rf_num, size_t vf_num);
 		void createSubdSphereObject(const MPoint3& center, double radius, size_t subtime);
 		void createCylinderObject(const MPoint3& b_center, const AMCAX::Vector3& axis, double radius, double height,
@@ -171,7 +197,7 @@ namespace acamcad
 			//void createBackupNormalOp(BaseObject* object);
 
 	public:
-		void addNewDataTypeFile(const QString&, const DataType&);
+		//void addNewDataTypeFile(const QString&, const DataType&);
 
 		void setOperationDataType(OperationDataType type);
 		void setMeshOperationType(MeshOperationType type);
@@ -180,7 +206,7 @@ namespace acamcad
 		MeshOperationType getMeshOperationType() const { return mesh_op_type_; }
 
 	private:
-		std::map<QString, DataType> file_allowed_type_;			//允许的文件类型，string对应到type
+		//std::map<QString, DataType> file_allowed_type_;			//允许的文件类型，string对应到type
 
 		OperationDataType	op_datatype_;	//only use it for some creat function
 		MeshOperationType	mesh_op_type_;
@@ -198,12 +224,15 @@ namespace acamcad
 		void setDataManager(DataManager* dataManager);
 		DataManager* getDataManager() const;
 
+		QString file_;
+
 
 		//void setBackupManager(BackupManager* backManager);
 		//void setRecord(Record& record) { record_ = &record; }
 
 	private:
 		DataManager* dataManager_;
+		AMCoreListener* listener_;
 		//BackupManager* backupManager_;
 		//UndoRedoHandler* undoRedoHandler_;
 	};

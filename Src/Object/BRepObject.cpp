@@ -219,10 +219,11 @@ namespace acamcad
 
 		AMCAX::Transformation3 tr;
 		tr.SetMirror(AMCAX::Frame3(P, v));
-		AMCAX::TransformShape trans(brep_trans_back_, tr);
+		AMCAX::TransformShape trans(shape_, tr);
 
 		shape_ = trans.Shape();
-
+		updateShapeInfo();
+		draw_tool_->updatedrawState();
 		//BRepObject* brep_object_new = new BRepObject();
 		//brep_object_new->shape_ = trans.Shape();
 		//brep_object_new->updateDraw();

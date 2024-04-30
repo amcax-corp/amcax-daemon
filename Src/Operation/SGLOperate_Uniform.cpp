@@ -17,7 +17,7 @@ namespace acamcad
 
 		AMCAX::TMS::TMSplineRepair repair;
 
-		bool result = repair.UniformTSpline(object->tSpline->getTSpline());
+		bool result = repair.UniformTSpline(object->tSpline->getShape());
 
 		if (result)
 		{

@@ -16,7 +16,6 @@
 #include "ACAMCore.h"
 
 #include "DataManager.h"
-#include "UndoRedoHandler.h"
 
 #include <set>
 
@@ -25,7 +24,7 @@
 
 using namespace acamcad;
 
-AMCore::AMCore() : dataManager_(nullptr)
+AMCore::AMCore() : dataManager_(nullptr), listener_(nullptr)
 {
 	init();
 
@@ -35,9 +34,9 @@ AMCore::AMCore() : dataManager_(nullptr)
 
 void AMCore::init()
 {
-	addNewDataTypeFile(FILE_EXT_AMCAX_BREP, DataType::BREP_TYPE);
-	addNewDataTypeFile(FILE_EXT_STEP, DataType::BREP_TYPE);
-	addNewDataTypeFile(FILE_EXT_STP, DataType::BREP_TYPE);
+	//addNewDataTypeFile(FILE_EXT_AMCAX_BREP, DataType::BREP_TYPE);
+	//addNewDataTypeFile(FILE_EXT_STEP, DataType::BREP_TYPE);
+	//addNewDataTypeFile(FILE_EXT_STP, DataType::BREP_TYPE);
 
 	inlineSingleOperation();
 	inlineMultOperation();
@@ -486,6 +485,7 @@ void AMCore::OperateSelectedObject(const SelectModel& s_model, const SelectInfoW
 	{
 		if (obj->dataType() == DataType::MESH_TYPE) {
 			//AdapterObject* adapter = dynamic_cast<AdapterObject*>(obj);
+			///obj->mesh->mesh()->numPolygons();
 
 			dataManager_->RecordModifyBegin({ obj });
 
@@ -739,8 +739,16 @@ void AMCore::OperateSelectedObject_Subset(const SelectModel& s_model, std::vecto
 		if (s_id.empty())
 			return;
 
-		BaseObject* obj = dataManager_->getObjectByPersistentID(object_list[0]);
+		AdapterObject* obj = dataManager_->getObjectByPersistentID(object_list[0]);
 
+		AdapterObject* copy_obj = obj->duplicateFaces(s_id);
+
+		if (copy_obj) {
+			copy_obj->updateDraw();
+			dataManager_->addObject(copy_obj);
+			dataManager_->RecordAddObject({ copy_obj });
+
+		}
 	}
 }
 
@@ -912,88 +920,65 @@ void AMCore::Undo()
 
 void AMCore::createSubdSphereObject(const MPoint3& center, double radius, size_t subtime)
 {
+	if (subtime <= 0)
+		return;
+
 	//MSphere sphere(center, radius);
 	CreateOperate_QuadballTSpline cQuadball(center, radius, subtime);
+	createObject(&cQuadball, DataType::TSPLINEU_TYPE);
 
-	//TSplineUObject* newObject = new TSplineUObject();
-	//newObject->doOperate(&cQuadball);
 
-	//dataManager_->addObject(newObject);
-	//createBackupAdd(newObject);
-	AdapterObject* object = new AdapterObject;
-	object->setDataType(DataType::TSPLINEU_TYPE);
 
-	cQuadball.operate(object);
-
-	dataManager_->addObject(object);
-	dataManager_->RecordAddObject({ object });
 }
 
 void AMCore::createCylinderObject(const MPoint3& b_center, const AMCAX::Vector3& axis, double radius, double height,
 	size_t rf_num, size_t vf_num, bool top, bool bottom)
 {
+	if (vf_num <= 0 || rf_num <= 0)
+		return;
+
 	//AMCAX::Frame3 frame(b_center, AMCAX::Direction3(axis.Coord()));
 	//MCylinder cylinder(b_center, axis, radius, height);
 	CreateOperate_CylinderTSpline cCylinder(b_center, axis, radius, height, rf_num, vf_num, top, bottom);
+	createObject(&cCylinder, DataType::TSPLINEU_TYPE);
 
-	AdapterObject* object = new AdapterObject;
-	object->setDataType(DataType::TSPLINEU_TYPE);
 
-	cCylinder.operate(object);
-
-	dataManager_->addObject(object);
-	dataManager_->RecordAddObject({ object });
-
-	//TSplineUObject* newObject = new TSplineUObject();
-	//newObject->doOperate(&cCylinder);
-
-	//dataManager_->addObject(newObject);
-	//createBackupAdd(newObject);
 }
 
 void AMCore::createConeObject(const MPoint3& b_center, const AMCAX::Vector3& axis, double radius, double height,
 	size_t rf_num, size_t vf_num, bool bottom)
 {
+	if (rf_num <= 0 || vf_num <= 0)
+		return;
 	//MCone cone(b_center, axis, radius, height);
 	CreateOperate_ConeTSpline cCone(b_center, axis, radius, height, rf_num, vf_num, bottom);
-
-	AdapterObject* object = new AdapterObject;
-	object->setDataType(DataType::TSPLINEU_TYPE);
-
-	cCone.operate(object);
-
-	dataManager_->addObject(object);
-	dataManager_->RecordAddObject({ object });
+	createObject(&cCone, DataType::TSPLINEU_TYPE);
 
 
 }
 
 void AMCore::creatTourObject(const MPoint3& center, double radius0, double radius1, size_t rf_num, size_t vf_num)
 {
+	if (rf_num <= 0 || vf_num <= 0)
+		return;
+
 	//MTorus tours(center, radius0, radius1);
 	AMCAX::Coord3 coord(center.Coord());
 	CreateOperate_TorusTSpline cTorus(coord, AMCAX::Coord3(0.0, 0.0, 1.0), radius0, radius1, rf_num, vf_num);
+	createObject(&cTorus, DataType::TSPLINEU_TYPE);
 
-	AdapterObject* object = new AdapterObject;
-	object->setDataType(DataType::TSPLINEU_TYPE);
-
-	cTorus.operate(object);
-
-	dataManager_->addObject(object);
-	dataManager_->RecordAddObject({ object });
 
 }
 
 void AMCore::createCircular(const MPoint3& center, double radius, double angle, size_t c_num)
 {
+	if (c_num <= 0)
+		return;
+
+
 	CreateOperate_CircularTSpline cCircular(center.Coord(), AMCAX::Coord3(0.0, 0.0, 1.0), radius, angle, c_num);
-	AdapterObject* object = new AdapterObject;
-	object->setDataType(DataType::TSPLINEU_TYPE);
+	createObject(&cCircular, DataType::TSPLINEU_TYPE);
 
-	cCircular.operate(object);
-
-	dataManager_->addObject(object);
-	dataManager_->RecordAddObject({ object });
 
 }
 

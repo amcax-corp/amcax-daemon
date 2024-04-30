@@ -50,7 +50,7 @@ bool acamcad::SGLOperate_SplitFaceByEdge::DoOperate(AdapterObject* adapter)
 			edge_t.push_back(AMCAX::Point3(re_points_[i]));
 		}
 
-		result = AMCAX::SubD::MeshSplit::SplitFaceWithEdge(adapter->mesh->mesh(), edge_id, edge_t);
+		result = AMCAX::SubD::MeshSplit::SplitFaceWithEdge(adapter->mesh->getShape(), edge_id, edge_t);
 	}
 	break;
 	case DataType::TSPLINEU_TYPE:
@@ -63,10 +63,10 @@ bool acamcad::SGLOperate_SplitFaceByEdge::DoOperate(AdapterObject* adapter)
 		}
 		AMCAX::TMS::TMSplineSplit tool;
 
-		result = tool.CanSplitFaceWithEdge(adapter->tSpline->getTSpline(), edge_id, edge_t);
+		result = tool.CanSplitFaceWithEdge(adapter->tSpline->getShape(), edge_id, edge_t);
 
 		if (result) {
-			tool.SplitFaceWithEdge(adapter->tSpline->getTSpline(), edge_id, edge_t);
+			tool.SplitFaceWithEdge(adapter->tSpline->getShape(), edge_id, edge_t);
 			adapter->updateDraw();
 		}
 

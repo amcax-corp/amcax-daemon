@@ -26,7 +26,7 @@ namespace acamcad
 	public:
 		CreateOperate_Sphere();
 		CreateOperate_Sphere(const AMCAX::Coord3& center, double radius, size_t rotation_seg, size_t vertical_seg);
-		CreateOperate_Sphere(const AMCAX::Coord3& center, double radius, double angle1, double angle2, double angle3);
+		CreateOperate_Sphere(const AMCAX::Coord3& center, double radius, double angle1);
 
 		virtual ~CreateOperate_Sphere();
 
@@ -40,7 +40,7 @@ namespace acamcad
 		double radius_;
 
 		size_t segR_, segV_;
-		double angle1_, angle2_, angle3_;
+		double angle1_;// , angle2_, angle3_;
 	};
 
 }

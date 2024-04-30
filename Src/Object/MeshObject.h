@@ -32,12 +32,12 @@ namespace acamcad {
 		virtual ~MeshObject();
 
 	public:
-		void SetMesh(AMCAX::SubD::PolyMesh* mesh);
-		polymesh::PolyMesh* mesh();
-		const polymesh::PolyMesh* mesh() const;
+		void setShape(polymesh::PolyMesh* mesh);
+		polymesh::PolyMesh* getShape();
+		const polymesh::PolyMesh* getShape() const;
 
 	private:
-		polymesh::PolyMesh* mesh_;
+		std::unique_ptr<polymesh::PolyMesh> mesh_;
 		//polymesh::PolyMesh* mesh_subdive_;
 
 		std::vector<int> mesh_v_id_back_;
@@ -45,12 +45,12 @@ namespace acamcad {
 		//std::vector<MVector3> mesh_normal_back_;
 		float scale_ = 1;
 
-	public:
-		/// Load a mesh from the given file
-		bool loadMesh(QString filename);
-		/// Save a mesh to the given file
-		bool saveMesh(QString filename);
-		bool saveTSpline(QString filename);
+		//public:
+		//	/// Load a mesh from the given file
+		//	bool loadMesh(QString filename);
+		//	/// Save a mesh to the given file
+		//	bool saveMesh(QString filename);
+		//	bool saveTSpline(QString filename);
 
 	public:
 		const virtual ObjectDraw* getDrawTool() const { return draw_tool_.get(); }
@@ -62,16 +62,16 @@ namespace acamcad {
 		virtual void doOperate(MOperation* operate);
 
 	public:
-		void assignMesh();
+		void assignShape();
 
-	public:
-		void backMesh(polymesh::PolyMesh*& bmesh);
-		void applyMesh(const polymesh::PolyMesh* amesh);
+		//public:
+		//	///void backMesh(polymesh::PolyMesh*& bmesh);
+		//	void applyMesh(const polymesh::PolyMesh* amesh);
 
 	public:
 		bool combineObject(const MeshObject* mesh_object);
 
-		void duplicateFaces(MeshObject* mesh_object, std::vector<int>& f_list);
+		//void duplicateFaces(MeshObject* mesh_object, std::vector<int>& f_list);
 
 		void mirrorMeshObject(const MVector3& center, const MVector3& normal);
 
@@ -103,7 +103,7 @@ namespace acamcad {
 
 	public:
 		void meshTriangulating();
-		void meshQuadrilateralizatuon();
+		//void meshQuadrilateralizatuon();
 
 		///void reverseMeshNormal();
 

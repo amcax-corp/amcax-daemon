@@ -15,10 +15,10 @@ namespace acamcad
 
 		AMCAX::TMS::TMSplineMakeQuadball qb(center_, radius_, seg_);
 
-		object->tSpline->setTSpline(qb.BuildSpline());
+		object->tSpline->setShape(qb.BuildSpline());
 
 		object->tSpline->updateDraw();
 
-		return true;
+		return object->tSpline->getShape();
 	}
 }

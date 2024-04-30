@@ -19,7 +19,6 @@
 #include "../Operation/OperationDefine.h"
 
 #include <cmath>
-#include "UndoRedoHandler.h"
 #include "../Utils/MathUtils.h"
 
 #define M_EPSILON 1.0e-8
@@ -98,7 +97,7 @@ namespace acamcad
 		bool arenum = (cR1 != FP_NAN) && (cR2 != FP_NAN) && (cH != FP_NAN) && (cA != FP_NAN);
 		arenum &= (cR1 != FP_INFINITE) && (cR2 != FP_INFINITE) && (cH != FP_INFINITE) && (cA != FP_INFINITE);
 
-		bool arepositive = ((r2 > M_EPSILON && r2 > M_EPSILON) || // both positive, truncated cone
+		bool arepositive = ((r2 > M_EPSILON) || // both positive, truncated cone
 			(cR1 == FP_ZERO && r2 > M_EPSILON) || (cR2 == FP_ZERO && r1 > M_EPSILON)) && // regular cone
 			(h > M_EPSILON);
 
@@ -198,20 +197,26 @@ namespace acamcad
 {
 	//=================================== BRep ===================================
 
-	void AMCore::createBRepObject(MOperation* operate, const std::string& label)
+	void AMCore::createObject(MOperation* operate, acamcad::DataType type, const std::string& label)
 	{
 		AdapterObject* adapter_object = new AdapterObject;
-		adapter_object->setDataType(acamcad::DataType::BREP_TYPE);
+		adapter_object->setDataType(type);
 		//adapter_object->bRep = std::make_unique<BRepObject>(adapter_object);
 
 		//BRepObject* newObject = new BRepObject();
 		adapter_object->setLabel(label);
-		operate->operate(adapter_object);
-		//adapter_object->doOperate(operate);
+		if (operate->operate(adapter_object)) {
+			//adapter_object->doOperate(operate);
 
-		dataManager_->addObject(adapter_object);
-		dataManager_->RecordAddObject({ adapter_object });
-		//undoRedoHandler_->recordOperation(adapter_object, ActionType::AddObject);
+			dataManager_->addObject(adapter_object);
+			dataManager_->RecordAddObject({ adapter_object });
+			//undoRedoHandler_->recordOperation(adapter_object, ActionType::AddObject);
+		}
+		else
+		{
+			delete adapter_object;
+		}
+
 
 	}
 
@@ -219,14 +224,14 @@ namespace acamcad
 		return dataManager_->getLastPersistentId();
 	}
 
-	void AMCore::createPlaneBRepObject(const AMCAX::Coord3& first, const AMCAX::Coord3& second, const std::string& label)
+	void AMCore::createPlaneBRepObject(const AMCAX::Coord2& p0p, const AMCAX::Coord2& p1p, const std::string& label)
 	{
-		AMCAX::Coord2 p0p(first.X(), first.Y());
-		AMCAX::Coord2 p1p(second.X(), second.Y());
+		//AMCAX::Coord2 p0p(first.X(), first.Y());
+		//AMCAX::Coord2 p1p(second.X(), second.Y());
 
 		CreateOperate_Plane cPlane(p0p, p1p, 1, 1);
 
-		createBRepObject(&cPlane, label);
+		createObject(&cPlane, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createCubeBRepObject(const AMCAX::Coord3& first, const AMCAX::Coord3& second, const std::string& label)
@@ -237,21 +242,20 @@ namespace acamcad
 		CreateOperate_Cube cCube(first, second, 1, 1, 1);
 
 
-		createBRepObject(&cCube, label);
+		createObject(&cCube, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createSphereBRepObject(const AMCAX::Coord3& center, double radius,
-		double angle1, double angle2, double angle3,
-		const std::string& label)
+		double angle1, const std::string& label)
 	{
 		if (!CheckSphereParamOK(radius, angle1))
 		{
 			return; // angle2 and angle3 is currently not used. range unknown.
 		}
 
-		CreateOperate_Sphere cSphere(center, radius, angle1, angle2, angle3);
+		CreateOperate_Sphere cSphere(center, radius, angle1);
 
-		createBRepObject(&cSphere, label);
+		createObject(&cSphere, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createCylinderBRepObject(const AMCAX::Coord3& b_center, const AMCAX::Coord3& axis,
@@ -265,7 +269,7 @@ namespace acamcad
 
 		CreateOperate_Cylinder cCylinder(b_center, radius, height, axis, angle);
 
-		createBRepObject(&cCylinder, label);
+		createObject(&cCylinder, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createCylinderBRepObject(const AMCAX::Coord3& b_center, const AMCAX::Coord3& axis, const AMCAX::Coord3& xaxis,
@@ -279,7 +283,7 @@ namespace acamcad
 
 		CreateOperate_Cylinder cCylinder(b_center, radius, height, axis, xaxis, angle);
 
-		createBRepObject(&cCylinder, label);
+		createObject(&cCylinder, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createConeBRepObject(const AMCAX::Coord3& b_center, const AMCAX::Coord3& axis,
@@ -293,7 +297,7 @@ namespace acamcad
 
 		CreateOperate_Cone cTCone(b_center, axis, radiusR, radiusr, height, angle);
 
-		createBRepObject(&cTCone, label);
+		createObject(&cTCone, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createConeBRepObject(const AMCAX::Coord3& b_center, const AMCAX::Coord3& axis, const AMCAX::Coord3& xaxis,
@@ -306,7 +310,7 @@ namespace acamcad
 
 		CreateOperate_Cone cTCone(b_center, axis, xaxis, radiusR, radiusr, height, angle);
 
-		createBRepObject(&cTCone, label);
+		createObject(&cTCone, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createTorusBRepObject(const AMCAX::Coord3& center, const AMCAX::Coord3& axis,
@@ -320,7 +324,7 @@ namespace acamcad
 		}
 		CreateOperate_Torus cTorus(center, radius0, radius1, axis, angle);
 
-		createBRepObject(&cTorus, label);
+		createObject(&cTorus, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createTorusBRepObject(const AMCAX::Coord3& center, const AMCAX::Coord3& axis, const AMCAX::Coord3& xaxis,
@@ -334,7 +338,7 @@ namespace acamcad
 
 		CreateOperate_Torus cTorus(center, radius0, radius1, axis, xaxis, angle);
 
-		createBRepObject(&cTorus, label);
+		createObject(&cTorus, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createPolygonBRepObject(const std::vector<AMCAX::Coord3d>& points, const std::string& label)
@@ -345,7 +349,7 @@ namespace acamcad
 		}
 		CreateOperate_Polygon cPolygon(points);
 
-		createBRepObject(&cPolygon, label);
+		createObject(&cPolygon, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createPrismBRepObject(const std::vector<AMCAX::Coord3d>& points, const AMCAX::Coord3d& prism_axis, const std::string& label)
@@ -356,7 +360,7 @@ namespace acamcad
 		}
 		CreateOperate_Prism cPrism(points, prism_axis);
 
-		createBRepObject(&cPrism, label);
+		createObject(&cPrism, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createRoundedPolygonBRepObject(const std::vector<AMCAX::Coord3>& points, const std::string& label)
@@ -364,7 +368,7 @@ namespace acamcad
 		// TODO: CheckParamOk
 		CreateOperate_RoundedPolygon cRPolygon(points);
 
-		createBRepObject(&cRPolygon, label);
+		createObject(&cRPolygon, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createRoundedPrismBRepObject(const std::vector<AMCAX::Coord3>& points, const AMCAX::Coord3& prism_axis, const std::string& label)
@@ -372,7 +376,7 @@ namespace acamcad
 		// TODO: CheckParamOk
 		CreateOperate_RoundedPrism cRPrism(points, prism_axis);
 
-		createBRepObject(&cRPrism, label);
+		createObject(&cRPrism, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createWedgeBRepObject(const double dx, const double dy, const double dz, const double ltx,
@@ -380,7 +384,7 @@ namespace acamcad
 	{
 		CreateOperate_Wedge cWedge(dx, dy, dz, ltx);
 
-		createBRepObject(&cWedge, label);
+		createObject(&cWedge, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createWedgeBRepObject(const AMCAX::Coord3& center,
@@ -389,7 +393,7 @@ namespace acamcad
 	{
 		CreateOperate_Wedge cWedge(center, dx, dy, dz, ltx);
 
-		createBRepObject(&cWedge, label);
+		createObject(&cWedge, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createWedgeBRepObject(const AMCAX::Coord3& center, const AMCAX::Coord3& axis,
@@ -397,7 +401,7 @@ namespace acamcad
 		const std::string& label)
 	{
 		CreateOperate_Wedge cWedge(center, axis, dx, dy, dz, ltx);
-		createBRepObject(&cWedge, label);
+		createObject(&cWedge, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createWedgeBRepObject(const double dx, const double dy, const double dz,
@@ -406,7 +410,7 @@ namespace acamcad
 	{
 		CreateOperate_Wedge cWedge(dx, dy, dz, xmin, zmin, xmax, zmax);
 
-		createBRepObject(&cWedge, label);
+		createObject(&cWedge, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createWedgeBRepObject(const AMCAX::Coord3& center,
@@ -416,7 +420,7 @@ namespace acamcad
 	{
 		CreateOperate_Wedge cWedge(center, dx, dy, dz, xmin, zmin, xmax, zmax);
 
-		createBRepObject(&cWedge, label);
+		createObject(&cWedge, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	void AMCore::createWedgeBRepObject(const AMCAX::Coord3& center, const AMCAX::Coord3& axis,
@@ -425,104 +429,59 @@ namespace acamcad
 	{
 		CreateOperate_Wedge cWedge(center, axis, dx, dy, dz, xmin, zmin, xmax, zmax);
 
-		createBRepObject(&cWedge, label);
+		createObject(&cWedge, acamcad::DataType::BREP_TYPE, label);
 	}
 
 	//Mesh
-	void AMCore::createPlaneMeshObject(MPoint3& p0, MPoint3& p1, size_t u_num, size_t v_num)
+	void AMCore::createPlaneMeshObject(AMCAX::Coord2& p0p, AMCAX::Coord2& p1p, size_t u_num, size_t v_num)
 	{
+		if (u_num <= 0 || v_num <= 0)
+			return;
 		//MPlane plane;
-		AMCAX::Coord2 p0p(p0.X(), p0.Y());
-		AMCAX::Coord2 p1p(p1.X(), p1.Y());
+		//AMCAX::Coord2 p0p(p0.X(), p0.Y());
+		//AMCAX::Coord2 p1p(p1.X(), p1.Y());
 		CreateOperate_PlaneMesh cPlane(p0p, p1p, u_num, v_num);
-
-		AdapterObject* adapter = new AdapterObject;
-		adapter->setDataType(acamcad::DataType::MESH_TYPE);
-
-		//adapter->doOperate(&cPlane);
-
-		cPlane.operate(adapter);
-
-
-		//MeshObject* newObject = new MeshObject();
-		//newObject->doOperate(&cPlane);
-
-		dataManager_->addObject(adapter);
-		//createBackupAdd(newObject);
-		//undoRedoHandler_->recordOperation(adapter, ActionType::AddObject);
-		dataManager_->RecordAddObject({ adapter });
+		createObject(&cPlane, acamcad::DataType::MESH_TYPE);
 	}
 
-	void AMCore::createCubeMeshObject(const MPoint3& first, const MPoint3& second,
+	void AMCore::createCubeMeshObject(const AMCAX::Coord3& c0, const AMCAX::Coord3& c1,
 		size_t x_num, size_t y_num, size_t z_num)
 	{
-		AMCAX::Coord3 c0(first.X(), first.Y(), first.Z()), c1(second.X(), second.Y(), second.Z());
+		//AMCAX::Coord3 c0(first.X(), first.Y(), first.Z()), c1(second.X(), second.Y(), second.Z());
+		if (x_num <= 0 || y_num <= 0 || z_num <= 0)
+			return;
 
 		CreateOperate_CubeMesh cCube(c0, c1, x_num, y_num, z_num);
-
-		AdapterObject* adapter = new AdapterObject;
-		adapter->setDataType(acamcad::DataType::MESH_TYPE);
-
-		cCube.operate(adapter);
-
-
-		dataManager_->addObject(adapter);
-		//dataManager_->addObject(adapter);
-		//createBackupAdd(newObject);
-		//undoRedoHandler_->recordOperation(adapter, ActionType::AddObject);
-		dataManager_->RecordAddObject({ adapter });
+		createObject(&cCube, acamcad::DataType::MESH_TYPE);
 	}
 
-	void AMCore::createPlaneObject(MPoint3& p0, MPoint3& p1, size_t u_num, size_t v_num)
+	void AMCore::createPlaneObject(AMCAX::Coord2& p0p, AMCAX::Coord2& p1p, size_t u_num, size_t v_num)
 	{
-		//MPlane plane;
-		AMCAX::Coord2 p0p(p0.X(), p0.Y());
-		AMCAX::Coord2 p1p(p1.X(), p1.Y());
+		if (u_num <= 0 || v_num <= 0)
+			return;
+
 		CreateOperate_PlaneTSpline cPlane(p0p, p1p, u_num, v_num);
-
-		AdapterObject* adapter = new AdapterObject;
-		adapter->setDataType(acamcad::DataType::TSPLINEU_TYPE);
-
-		cPlane.operate(adapter);
-
-		dataManager_->addObject(adapter);
-
-		dataManager_->RecordAddObject({ adapter });
-
-		//createBackupAdd(newObject);
+		createObject(&cPlane, acamcad::DataType::TSPLINEU_TYPE);
 	}
 
-	void AMCore::createCubeObject(const MPoint3& first, const MPoint3& second, size_t x_num, size_t y_num, size_t z_num)
+	void AMCore::createCubeObject(const AMCAX::Coord3& min_bb, const AMCAX::Coord3& max_bb, size_t x_num, size_t y_num, size_t z_num)
 	{
-		AMCAX::Coord3 min_bb = first.Coord(),
-			max_bb = second.Coord();
+		if (x_num <= 0 || y_num <= 0 || z_num <= 0)
+			return;
+		//AMCAX::Coord3 min_bb = first.Coord(),
+		//	max_bb = second.Coord();
 		CreateOperate_CubeTSpline cCube(min_bb, max_bb, x_num, y_num, z_num);
-
-
-		AdapterObject* adapter = new AdapterObject;
-		adapter->setDataType(acamcad::DataType::TSPLINEU_TYPE);
-
-		cCube.operate(adapter);
-
-		dataManager_->addObject(adapter);
-
-		dataManager_->RecordAddObject({ adapter });
+		createObject(&cCube, acamcad::DataType::TSPLINEU_TYPE);
 	}
 
 
 	void AMCore::createUVSphereObject(const MPoint3& center, double radius, size_t rf_num, size_t vf_num)
 	{
+		if (rf_num <= 0 || vf_num <= 0)
+			return;
 		//MSphere sphere(center, radius);
 		CreateOperate_SphereTSpline cSphere(center.Coord(), radius, rf_num, vf_num);
-
-		AdapterObject* adapter = new AdapterObject;
-		adapter->setDataType(acamcad::DataType::TSPLINEU_TYPE);
-
-		cSphere.operate(adapter);
-
-		dataManager_->addObject(adapter);
-
-		dataManager_->RecordAddObject({ adapter });
+		createObject(&cSphere, acamcad::DataType::TSPLINEU_TYPE);
 	}
 
 	//===========================================================

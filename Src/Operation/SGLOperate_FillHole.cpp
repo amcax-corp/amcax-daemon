@@ -25,11 +25,11 @@ namespace acamcad
 				break;
 
 			AMCAX::TMS::TMSplineFillHole tool;
-			result = tool.CanFillSingleHole(adapter->tSpline->getTSpline(), ids[0]);
+			result = tool.CanFillSingleHole(adapter->tSpline->getShape(), ids[0]);
 
 			if (result)
 			{
-				tool.FillSingleHole(adapter->tSpline->getTSpline(), ids[0]);
+				tool.FillSingleHole(adapter->tSpline->getShape(), ids[0]);
 				adapter->updateDraw();
 			}
 
@@ -37,7 +37,7 @@ namespace acamcad
 		break;
 		case acamcad::SelectModel::OBJECT_MODEL:
 		{
-			result = AMCAX::TMS::TMSplineFillHole().FillAllHoles(adapter->tSpline->getTSpline());
+			result = AMCAX::TMS::TMSplineFillHole().FillAllHoles(adapter->tSpline->getShape());
 
 			adapter->updateDraw();
 		}

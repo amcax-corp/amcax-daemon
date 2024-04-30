@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "BaseObject.h"
 
 #include <set>
@@ -31,13 +31,13 @@ namespace acamcad
 		virtual void updateDraw();
 
 	public:
-		AMCAX::TMS::TMSpline* getTSpline();
-		const AMCAX::TMS::TMSpline* getTSpline() const;
+		AMCAX::TMS::TMSpline* getShape();
+		const AMCAX::TMS::TMSpline* getShape() const;
 
 		/// This function is Very danger, only using in creat operation, I am trying other ways to replace it 
-		void setTSpline(AMCAX::TMS::TMSpline* tsp);
+		void setShape(AMCAX::TMS::TMSpline* tsp);
 
-		void assignTSpline();
+		void assignShape();
 
 		// select vert edge face
 		void selectVertWithFaceId(const AMCAX::Vector3& begin, const AMCAX::Vector3& end, int f_id, int& sv_id);
@@ -47,34 +47,32 @@ namespace acamcad
 			//void backSpline(AMCAX::TMS::TMSpline*& back_spline);
 			//void applySpline(const AMCAX::TMS::TMSpline* apply_spline);
 
-	public:
-		/// Load a mesh from the given file
-		bool loadSpline(const QString& filename);
-		/// Save a mesh to the given file
-		bool saveSpline(const QString& filename);
+	//public:
+	//	/// Load a mesh from the given file
+	//	bool loadSpline(const QString& filename);
+	//	/// Save a mesh to the given file
+	//	bool saveSpline(const QString& filename);
 
-		bool saveSplineSTL(const QString& filename);
-		bool saveSplineOBJ(const QString& filename);
+	//	bool saveSplineSTL(const QString& filename);
+	//	bool saveSplineOBJ(const QString& filename);
 
 		//bool saveSplineFrep(const QString& filename);
 		//std::set<int> frepFixFaceIndex;
 		//std::set<int> frepForceFaceIndex;
 
 	private:
-		AMCAX::TMS::TMSpline* spline_;
+		std::unique_ptr<AMCAX::TMS::TMSpline> spline_;
 
 	public:
-		//存储原来点的位置
 		void mesh_OPvert_Backup();
 		void mesh_OPvert_BackupVertes(const std::vector<int>& vert_id);
 		void mesh_OPvert_BackupEdges(const std::vector<int>& edge_id);
 		void mesh_OPvert_BackupFaces(const std::vector<int>& face_id);
 		void mesh_Clear_OPvertBackup();
 
-		//在有了原来的顶点之后，所有的缩放都是一样的，没有体，边，面，点的区别了。
 		void meshScaleSingle(const AMCAX::Vector3& center, const AMCAX::Vector3& axis, double scale);
 		void meshScalePlane(const AMCAX::Vector3& center, const AMCAX::Vector3& normal, double scale);
-		void meshRotation(const AMCAX::Vector3& center, const AMCAX::Vector3& axis, double angle);		//rotation 没存储原来的位置
+		void meshRotation(const AMCAX::Vector3& center, const AMCAX::Vector3& axis, double angle);
 		///void meshMoveUsingNormal(double dis);
 		void meshMove(const AMCAX::Vector3& v, double dis);
 

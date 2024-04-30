@@ -21,9 +21,9 @@ namespace acamcad
 		AMCAX::TMS::TMSplineMakeCircular shape(frame, radius_, angle_, seg_);
 
 
-		object->tSpline->setTSpline(shape.BuildSpline());
+		object->tSpline->setShape(shape.BuildSpline());
 		object->tSpline->updateDraw();
-		return true;
+		return object->tSpline->getShape();
 	}
 
 

@@ -12,7 +12,7 @@ namespace acamcad
 
 	bool CreateOperate_SingleFaceTSpline::DoOperate(AdapterObject* object)
 	{
-		object->tSpline->assignTSpline();
+		object->tSpline->assignShape();
 
 		std::vector<MPoint3> pList;
 		for (auto& iter : point_list_)
@@ -20,7 +20,7 @@ namespace acamcad
 			pList.push_back(MPoint3(iter));
 		}
 
-		bool result = AMCAX::TMS::TMSplineAddFace().AddSingleFace(object->tSpline->getTSpline(), pList);
+		bool result = AMCAX::TMS::TMSplineAddFace().AddSingleFace(object->tSpline->getShape(), pList);
 
 		//AMCAX::SubD::MeshInsertFace::AddSingleFace(object->mesh->mesh(), pList);
 

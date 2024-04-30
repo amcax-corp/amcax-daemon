@@ -22,11 +22,11 @@ namespace acamcad
 
 		AMCAX::TMS::TMSplineMakeCube cube(bb_min, bb_max, segX_, segY_, segZ_);
 
-		adapter->tSpline->setTSpline(cube.BuildSpline());
+		adapter->tSpline->setShape(cube.BuildSpline());
 		//adapter->mesh->SetMesh(cube.BuildMesh());
 		adapter->updateDraw();
 
-		return true;
+		return adapter->tSpline->getShape();
 		//AMCAX::Point3 bb_min, bb_max_;
 		//brep_object->SetShape(*AMCAX::SubD::MeshMakeCube(bb_min, bb_max, segX_, segY_, segZ_).BuildMesh());
 	}

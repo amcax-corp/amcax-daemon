@@ -19,15 +19,17 @@
 #include <list>
 #include <memory>
 
-
 #include "../Object/ObjectDefine.h"
+#include "LocalDataManager.h"
+
+//class RibbonViewer;
 
 namespace acamcad
 {
 
 	//class AdapterObject
 
-	class UndoManager
+	class UndoManager :public LocalDataManager
 	{
 	public:
 		UndoManager();
@@ -55,32 +57,41 @@ namespace acamcad
 		void Undo();
 		void Redo();
 
+		void clearHistory();
+
+		void setFunc(std::function<void(void)> func);
+
 	protected:
 
+		void addBegin(const std::vector<AdapterObject*>& oldData);
+		void addEnd(const std::vector<AdapterObject*>& curData);
+
 		virtual	void addObject_UndoManage(AdapterObject* object) = 0;
-		virtual void deleteObject_UndoManage(AdapterObject* object) = 0;
+		virtual void deleteObject_UndoManage(int persistentId) = 0;
 		virtual void sortObject_UndoManage() = 0;
 
 	private:
-		struct Data
-		{
-			///DataType type;
-			std::list<std::shared_ptr<AdapterObject>> curObjects;
-			std::list<std::shared_ptr<AdapterObject>> oldObjects;
-		};
+		//struct Data
+		//{
+		//	///DataType type;
+		//	std::list<std::shared_ptr<AdapterObject>> curObjects;
+		//	std::list<std::shared_ptr<AdapterObject>> oldObjects;
+		//};
 		void nextStep(std::vector<AdapterObject*> curData, std::vector<AdapterObject*> oldData);
 
-		void nextStep(const Data& data);
+		void nextStep(const std::vector<DataModelHistory>& data);
 
 
-		std::shared_ptr<AdapterObject> getObjectInData(AdapterObject* object);
+		//std::shared_ptr<AdapterObject> getObjectInData(AdapterObject* object);
 
 	protected:
 
-		std::list<Data> data_;
-		int data_index_;
+		//std::list<Data> data_;
+		int data_index_size_;
+		int data_size_;
 
-		std::list<std::shared_ptr<AdapterObject>> oldObjects_;
+		std::vector<DataModelHistory> oldObjects_;
+		std::function<void(void)> func_;
 
 		//std::vector<std::shared_ptr<AdapterObject>> auto_olds;
 		//std::vector<std::shared_ptr<AdapterObject>> auto_news;

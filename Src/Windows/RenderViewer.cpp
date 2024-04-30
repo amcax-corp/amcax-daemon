@@ -24,13 +24,14 @@
 #include "../Core/DataManager.h"
 #include "SelectTool.h"
 #include "../Utils/MathUtils.h"
+#include "DialogAuto.h"
 
 using namespace acamcad;
 using namespace qglviewer;
 
 RenderViewer::RenderViewer(QWidget* parent, Qt::WindowFlags flags) :
 	QGLViewer(parent, flags), selectBuffer_(nullptr), draw_model_(DrawModel::RENDERING_MODEL),
-	dataManager_(nullptr), coreCommand_(nullptr)
+	dataManager_(nullptr), coreCommand_(nullptr), listen_(nullptr)
 {
 	work_plane_ = new PlaneObject();
 	is_draw_grid_ = true;
@@ -38,6 +39,7 @@ RenderViewer::RenderViewer(QWidget* parent, Qt::WindowFlags flags) :
 	is_pick_move_select_ = false;
 
 	o_axis_ = nullptr;
+	selectTool_ = new SelectTool();
 
 	setSelectBufferSize(2000);
 	setSelectRegionWidthDefault();
@@ -46,11 +48,9 @@ RenderViewer::RenderViewer(QWidget* parent, Qt::WindowFlags flags) :
 	setSelectModel(SelectModel::OBJECT_MODEL);
 	setOperateType(OperationType::NO_OPERATION);
 
-	selectTool_ = new SelectTool();
 
-	dialog = new ParamDialog(parent);
+
 	// TODO: connect
-	connect(dialog, &ParamDialog::finished, this, &RenderViewer::disconnectDialog);
 	// Possibly a bug in Qt5 MSVC, which prevents the "new" style connect() from working.
 	//connect(this, &RenderViewer::selectedModelChanged, this, &RenderViewer::selectCheckChanged);
 	connect(this, SIGNAL(selectedModelChanged()), this, SLOT(selectCheckChanged()));
@@ -58,9 +58,9 @@ RenderViewer::RenderViewer(QWidget* parent, Qt::WindowFlags flags) :
 
 	glu_cylinder_ = gluNewQuadric();
 
-	initBRep();
-	initMesh();
-	initTSpline();
+	//initBRep();
+	//initMesh();
+	//initTSpline();
 }
 
 RenderViewer::~RenderViewer()
@@ -621,6 +621,11 @@ std::vector<int> getSelectObjectList(const std::vector<SelectInfoWithCamera>& s_
 	return so_id_list;
 }
 
+void RenderViewer::setListen(RenderViewerListen* listen)
+{
+	listen_ = listen;
+}
+
 void RenderViewer::mouseReleaseEvent(QMouseEvent* e)
 {
 	if (is_frame_selection_)
@@ -798,15 +803,6 @@ void RenderViewer::keyPressEvent(QKeyEvent* e)
 	{
 		beginEnterClickOperation();
 	}
-	// control , with undo / redo
-	else if (modifiers == Qt::ControlModifier && key == Qt::Key_Z)
-	{
-		slotUndo();
-	}
-	else if (modifiers == Qt::ControlModifier && key == Qt::Key_Y)
-	{
-		slotRedo();
-	}
 	//开关工作平面显示
 	else if (modifiers == Qt::NoModifier && key == Qt::Key_G) {
 		changeGridIsDrawn();
@@ -909,8 +905,8 @@ void RenderViewer::keyPressEvent(QKeyEvent* e)
 	//保存操作
 	else if (modifiers == Qt::ControlModifier && key == Qt::Key_S)
 	{
-		QString f = "AMCAD_work.obj";
-		coreCommand_->saveObjects(f);
+		//QString f = "AMCAD_work.obj";
+		coreCommand_->saveObjects();
 	}
 	else
 	{
@@ -1340,7 +1336,8 @@ AMCAX::Coord3 RenderViewer::mouseMoveTrans(const QPoint& e_point, const AMCAX::C
 
 void RenderViewer::clearSelected()
 {
-	dataManager_->clearSelected();
+	if (dataManager_)
+		dataManager_->clearSelected();
 	select_info_list_.clear();
 	selectTool_->clearSelected();
 }
@@ -1389,131 +1386,172 @@ void RenderViewer::slotCreateSingleFaceMesh()
 }
 
 void RenderViewer::slotCreatPlaneMesh() {
-	dialog->addElements(objectFillOuts[OPERATE_MESH_PLANE]);
-	dialog->setWindowTitle(tr("Create a plane mesh"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreatPlaneMeshAccepted);
-	dialog->open();
+	//dialog->addElements(objectFillOuts[OPERATE_MESH_PLANE]);
+	//dialog->setWindowTitle(tr("Create a plane mesh"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreatPlaneMeshAccepted);
+	//dialog->open();
+	DialogAuto dialog(this);
+
+	dialog.SetData(tr("平面"),
+		{
+		{tr("位置与形状")},
+		{tr("第一点"),AMCAX::Coord2(0.0,0.0)},
+		{tr("对角点"),AMCAX::Coord2(1.0,1.0)},
+		{tr("X向分段"),(size_t)3},
+		{tr("Y向分段"),(size_t)3},
+		});
+
+	///std::cout << "RenderViewer::slotCreatePlaneTSpline " << result << std::endl;
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createPlaneMeshObject(data[1].value.c2, data[2].value.c2, data[3].value.i, data[4].value.i);
+	}
+
 }
-void RenderViewer::slotCreatPlaneMeshAccepted(const ParamDialog::Response& data) {
-
-	MPoint3 p0 = MPoint3(data[0].second.point.X(), data[0].second.point.Y(), data[0].second.point.Z());
-	MPoint3 p1 = MPoint3(data[1].second.point.X(), data[1].second.point.Y(), data[1].second.point.Z());
-
-	size_t u_num = data[2].second.s;
-	size_t v_num = data[3].second.s;
-	coreCommand_->createPlaneMeshObject(p0, p1, u_num, v_num);
-	update();
-
-	objectFillOuts[OPERATE_MESH_PLANE][0].def.point = data[0].second.point;
-	objectFillOuts[OPERATE_MESH_PLANE][1].def.point = data[1].second.point;
-	objectFillOuts[OPERATE_MESH_PLANE][2].def.s = u_num;
-	objectFillOuts[OPERATE_MESH_PLANE][3].def.s = v_num;
-}
+//void RenderViewer::slotCreatPlaneMeshAccepted(const ParamDialog::Response& data) {
+//
+//	MPoint3 p0 = MPoint3(data[0].second.point.X(), data[0].second.point.Y(), data[0].second.point.Z());
+//	MPoint3 p1 = MPoint3(data[1].second.point.X(), data[1].second.point.Y(), data[1].second.point.Z());
+//
+//	size_t u_num = data[2].second.s;
+//	size_t v_num = data[3].second.s;
+//	coreCommand_->createPlaneMeshObject(p0, p1, u_num, v_num);
+//	update();
+//
+//	objectFillOuts[OPERATE_MESH_PLANE][0].def.point = data[0].second.point;
+//	objectFillOuts[OPERATE_MESH_PLANE][1].def.point = data[1].second.point;
+//	objectFillOuts[OPERATE_MESH_PLANE][2].def.s = u_num;
+//	objectFillOuts[OPERATE_MESH_PLANE][3].def.s = v_num;
+//}
 
 void RenderViewer::slotCreatCubeMesh() {
-	dialog->addElements(objectFillOuts[OPERATE_MESH_CUBE]);
-	dialog->setWindowTitle(tr("Create a cube mesh"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreatCubeMeshAccepted);
-	dialog->open();
+	//dialog->addElements(objectFillOuts[OPERATE_MESH_CUBE]);
+	//dialog->setWindowTitle(tr("Create a cube mesh"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreatCubeMeshAccepted);
+	//dialog->open();
+
+	DialogAuto dialog(this);
+
+	dialog.SetData(tr("立方体"),
+		{
+		{tr("位置与形状")},
+		{tr("第一点"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("对角点"),AMCAX::Coord3(1.0,1.0,1.0)},
+		{tr("X向分段"),(size_t)2},
+		{tr("Y向分段"),(size_t)2},
+		{tr("Z向分段"),(size_t)2},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createCubeMeshObject(data[1].value.c3, data[2].value.c3,
+			data[3].value.i, data[4].value.i, data[5].value.i);
+	}
 }
 
-void RenderViewer::slotCreatCubeMeshAccepted(const ParamDialog::Response& data) {
+//void RenderViewer::slotCreatCubeMeshAccepted(const ParamDialog::Response& data) {
+//
+//	AMCAX::Coord3 c_co = data[0].second.point;
+//	AMCAX::Coord3 s_co = data[1].second.point;
+//
+//	MPoint3 c(c_co.X(), c_co.Y(), c_co.Z());
+//	MPoint3 s(s_co.X(), s_co.Y(), s_co.Z());
+//	size_t x_num = data[2].second.s;
+//	size_t y_num = data[3].second.s;
+//	size_t z_num = data[4].second.s;
+//	coreCommand_->createCubeMeshObject(c, s, x_num, y_num, z_num);
+//	update();
+//
+//	objectFillOuts[OPERATE_MESH_CUBE][0].def.point = c_co;
+//	objectFillOuts[OPERATE_MESH_CUBE][1].def.point = s_co;
+//	objectFillOuts[OPERATE_MESH_CUBE][2].def.s = x_num;
+//	objectFillOuts[OPERATE_MESH_CUBE][3].def.s = y_num;
+//	objectFillOuts[OPERATE_MESH_CUBE][4].def.s = z_num;
+//}
 
-	AMCAX::Coord3 c_co = data[0].second.point;
-	AMCAX::Coord3 s_co = data[1].second.point;
-
-	MPoint3 c(c_co.X(), c_co.Y(), c_co.Z());
-	MPoint3 s(s_co.X(), s_co.Y(), s_co.Z());
-	size_t x_num = data[2].second.s;
-	size_t y_num = data[3].second.s;
-	size_t z_num = data[4].second.s;
-	coreCommand_->createCubeMeshObject(c, s, x_num, y_num, z_num);
-	update();
-
-	objectFillOuts[OPERATE_MESH_CUBE][0].def.point = c_co;
-	objectFillOuts[OPERATE_MESH_CUBE][1].def.point = s_co;
-	objectFillOuts[OPERATE_MESH_CUBE][2].def.s = x_num;
-	objectFillOuts[OPERATE_MESH_CUBE][3].def.s = y_num;
-	objectFillOuts[OPERATE_MESH_CUBE][4].def.s = z_num;
-}
-
-void RenderViewer::initTSpline()
-{
-	objectFillOuts[OPERATE_TSPLINE_PLANE] = QVector<ParamDialog::RequestUnit>{
-	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p0p"), ParamDialog::DataUnit{MPoint3(0.0, 0.0, 0.0)}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p1p"), ParamDialog::DataUnit{MPoint3(2.0, 2.0, 0.0)}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("u_num"), ParamDialog::DataUnit{3Ui64}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("v_num"), ParamDialog::DataUnit{3Ui64}),
-	};
-	objectFillOuts[OPERATE_TSPLINE_CUBE] = QVector<ParamDialog::RequestUnit>{
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("first"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("second"), ParamDialog::DataUnit{MPoint3{1.0, 1.0, 1.0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("x_num"), ParamDialog::DataUnit{1Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("y_num"), ParamDialog::DataUnit{1Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("z_num"), ParamDialog::DataUnit{1Ui64}),
-	};
-	objectFillOuts[OPERATE_TSPLINE_UVSPHERE] = QVector<ParamDialog::RequestUnit>{
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{8Ui64}),
-	};
-	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE] = QVector<ParamDialog::RequestUnit>{
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("subtime"), ParamDialog::DataUnit{2Ui64}),
-	};
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER] = QVector<ParamDialog::RequestUnit>{
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("b_center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("axis"), ParamDialog::DataUnit{MPoint3{.0, .0, 1.0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("height"), ParamDialog::DataUnit{2.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{4Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_BOOL, tr("top"), ParamDialog::DataUnit{true}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_BOOL, tr("bottom"), ParamDialog::DataUnit{true}),
-	};
-	objectFillOuts[OPERATE_TSPLINE_CONE] = QVector<ParamDialog::RequestUnit>{
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("b_center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("axis"), ParamDialog::DataUnit{MPoint3{.0, .0, 1.0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("height"), ParamDialog::DataUnit{2.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{4Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_BOOL, tr("bottom"), ParamDialog::DataUnit{true}),
-	};
-	objectFillOuts[OPERATE_TSPLINE_TORUS] = QVector<ParamDialog::RequestUnit>{
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius0"), ParamDialog::DataUnit{1.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius1"), ParamDialog::DataUnit{0.5}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{4Ui64}),
-	};
-	objectFillOuts[OPERATE_TSPLINE_CIRCULAR] = QVector<ParamDialog::RequestUnit>{
-		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{2.0}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE_PI, tr("angle"), ParamDialog::DataUnit{0.5}),
-		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("c_num"), ParamDialog::DataUnit{4Ui64}),
-	};
-}
-
-void RenderViewer::initMesh()
-{
-	objectFillOuts[OPERATE_MESH_PLANE] = QVector<ParamDialog::RequestUnit>{
-	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p0"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p1"), ParamDialog::DataUnit{MPoint3{2.0, 2.0, 0.0}}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("u_num"), ParamDialog::DataUnit{2Ui64}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("v_num"), ParamDialog::DataUnit{2Ui64}),
-	};
-
-	objectFillOuts[OPERATE_MESH_CUBE] = QVector<ParamDialog::RequestUnit>{
-	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("first"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("second"), ParamDialog::DataUnit{MPoint3{1.0, 1.0, 1.0}}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("x_num"), ParamDialog::DataUnit{2Ui64}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("y_num"), ParamDialog::DataUnit{2Ui64}),
-	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("z_num"), ParamDialog::DataUnit{2Ui64}),
-	};
-}
+//void RenderViewer::initTSpline()
+//{
+//	objectFillOuts[OPERATE_TSPLINE_PLANE] = QVector<ParamDialog::RequestUnit>{
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p0p"), ParamDialog::DataUnit{MPoint3(0.0, 0.0, 0.0)}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p1p"), ParamDialog::DataUnit{MPoint3(2.0, 2.0, 0.0)}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("u_num"), ParamDialog::DataUnit{3Ui64}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("v_num"), ParamDialog::DataUnit{3Ui64}),
+//	};
+//	objectFillOuts[OPERATE_TSPLINE_CUBE] = QVector<ParamDialog::RequestUnit>{
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("first"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("second"), ParamDialog::DataUnit{MPoint3{1.0, 1.0, 1.0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("x_num"), ParamDialog::DataUnit{1Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("y_num"), ParamDialog::DataUnit{1Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("z_num"), ParamDialog::DataUnit{1Ui64}),
+//	};
+//	objectFillOuts[OPERATE_TSPLINE_UVSPHERE] = QVector<ParamDialog::RequestUnit>{
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{8Ui64}),
+//	};
+//	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE] = QVector<ParamDialog::RequestUnit>{
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("subtime"), ParamDialog::DataUnit{2Ui64}),
+//	};
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER] = QVector<ParamDialog::RequestUnit>{
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("b_center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("axis"), ParamDialog::DataUnit{MPoint3{.0, .0, 1.0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("height"), ParamDialog::DataUnit{2.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{4Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_BOOL, tr("top"), ParamDialog::DataUnit{true}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_BOOL, tr("bottom"), ParamDialog::DataUnit{true}),
+//	};
+//	objectFillOuts[OPERATE_TSPLINE_CONE] = QVector<ParamDialog::RequestUnit>{
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("b_center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("axis"), ParamDialog::DataUnit{MPoint3{.0, .0, 1.0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{1.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("height"), ParamDialog::DataUnit{2.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{4Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_BOOL, tr("bottom"), ParamDialog::DataUnit{true}),
+//	};
+//	objectFillOuts[OPERATE_TSPLINE_TORUS] = QVector<ParamDialog::RequestUnit>{
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius0"), ParamDialog::DataUnit{1.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius1"), ParamDialog::DataUnit{0.5}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("rf_num"), ParamDialog::DataUnit{8Ui64}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("vf_num"), ParamDialog::DataUnit{4Ui64}),
+//	};
+//	objectFillOuts[OPERATE_TSPLINE_CIRCULAR] = QVector<ParamDialog::RequestUnit>{
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("center"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE, tr("radius"), ParamDialog::DataUnit{2.0}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_DOUBLE_PI, tr("angle"), ParamDialog::DataUnit{0.5}),
+//		ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("c_num"), ParamDialog::DataUnit{4Ui64}),
+//	};
+//}
+//
+//void RenderViewer::initMesh()
+//{
+//	objectFillOuts[OPERATE_MESH_PLANE] = QVector<ParamDialog::RequestUnit>{
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p0"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3_2, tr("p1"), ParamDialog::DataUnit{MPoint3{2.0, 2.0, 0.0}}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("u_num"), ParamDialog::DataUnit{2Ui64}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("v_num"), ParamDialog::DataUnit{2Ui64}),
+//	};
+//
+//	objectFillOuts[OPERATE_MESH_CUBE] = QVector<ParamDialog::RequestUnit>{
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("first"), ParamDialog::DataUnit{MPoint3{.0, .0, .0}}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_MPOINT3, tr("second"), ParamDialog::DataUnit{MPoint3{1.0, 1.0, 1.0}}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("x_num"), ParamDialog::DataUnit{2Ui64}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("y_num"), ParamDialog::DataUnit{2Ui64}),
+//	ParamDialog::RequestUnit(ParamDialog::TYPE_SIZE_T, tr("z_num"), ParamDialog::DataUnit{2Ui64}),
+//	};
+//}
 
 void RenderViewer::slotMeshSubdiveCatmullClark() {
 	MeshObjectOperation(SelectModel::OBJECT_MODEL, OperationType::ENTER_OPERATION,
@@ -1559,194 +1597,350 @@ void RenderViewer::slotCreateSingleFaceTSpline() {
 }
 
 void RenderViewer::slotCreatePlaneTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_PLANE]);
 
-	dialog->setWindowTitle(tr("Create a Plane TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreatePlaneTSplineAccepted);
-	dialog->open();
+	// @lw
+	//dialog->addElements(objectFillOuts[OPERATE_TSPLINE_PLANE]);
+
+	//dialog->setWindowTitle(tr("Create a Plane TSpline"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreatePlaneTSplineAccepted);
+	//dialog->open();
+	DialogAuto dialog(this);
+
+	dialog.SetData(tr("平面"),
+		{
+		{tr("位置与形状")},
+		{tr("第一点"),AMCAX::Coord2(0.0,0.0)},
+		{tr("对角点"),AMCAX::Coord2(1.0,1.0)},
+		{tr("X向分段"),(size_t)3},
+		{tr("Y向分段"),(size_t)3},
+		});
+
+	///std::cout << "RenderViewer::slotCreatePlaneTSpline " << result << std::endl;
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createPlaneObject(data[1].value.c2, data[2].value.c2, data[3].value.i, data[4].value.i);
+	}
 }
 
-void RenderViewer::slotCreatePlaneTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 p0(data[0].second.point);
-	MPoint3 p1(data[1].second.point);
-	size_t u_num = data[2].second.s;
-	size_t v_num = data[3].second.s;
-	coreCommand_->createPlaneObject(p0, p1, u_num, v_num);
-	update();
-
-	// updating the value stored in objectFillOuts so that the next time the dialog launches
-	// the data will remain the same as the user used the previous time
-	objectFillOuts[OPERATE_TSPLINE_PLANE][0].def.point = p0.Coord();
-	objectFillOuts[OPERATE_TSPLINE_PLANE][1].def.point = p1.Coord();
-	objectFillOuts[OPERATE_TSPLINE_PLANE][2].def.s = u_num;
-	objectFillOuts[OPERATE_TSPLINE_PLANE][3].def.s = v_num;
-}
 
 void RenderViewer::slotCreateCubeTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CUBE]);
-	dialog->setWindowTitle(tr("Create a Cube TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateCubeTSplineAccepted);
-	dialog->open();
+	//dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CUBE]);
+	//dialog->setWindowTitle(tr("Create a Cube TSpline"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateCubeTSplineAccepted);
+	//dialog->open();
+
+	DialogAuto dialog(this);
+
+	dialog.SetData(tr("立方体"),
+		{
+		{tr("位置与形状")},
+		{tr("第一点"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("对角点"),AMCAX::Coord3(1.0,1.0,1.0)},
+		{tr("X向分段"),(size_t)2},
+		{tr("Y向分段"),(size_t)2},
+		{tr("Z向分段"),(size_t)2},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createCubeObject(data[1].value.c3, data[2].value.c3,
+			data[3].value.i, data[4].value.i, data[5].value.i);
+	}
+
 }
 
-void RenderViewer::slotCreateCubeTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 c(data[0].second.point);
-	MPoint3 s(data[1].second.point);
-	size_t x_num = data[2].second.s;
-	size_t y_num = data[3].second.s;
-	size_t z_num = data[4].second.s;
-	coreCommand_->createCubeObject(c, s, x_num, y_num, z_num);
-	update();
-
-	// updating the value stored in objectFillOuts so that the next time the dialog launches
-	// the data will remain the same as the user used the previous time
-	objectFillOuts[OPERATE_TSPLINE_CUBE][0].def.point = c.Coord();
-	objectFillOuts[OPERATE_TSPLINE_CUBE][1].def.point = s.Coord();
-	objectFillOuts[OPERATE_TSPLINE_CUBE][2].def.s = x_num;
-	objectFillOuts[OPERATE_TSPLINE_CUBE][3].def.s = y_num;
-	objectFillOuts[OPERATE_TSPLINE_CUBE][4].def.s = z_num;
-}
+//void RenderViewer::slotCreateCubeTSplineAccepted(const ParamDialog::Response& data) {
+//	MPoint3 c(data[0].second.point);
+//	MPoint3 s(data[1].second.point);
+//	size_t x_num = data[2].second.s;
+//	size_t y_num = data[3].second.s;
+//	size_t z_num = data[4].second.s;
+//	coreCommand_->createCubeObject(c, s, x_num, y_num, z_num);
+//	update();
+//
+//	// updating the value stored in objectFillOuts so that the next time the dialog launches
+//	// the data will remain the same as the user used the previous time
+//	objectFillOuts[OPERATE_TSPLINE_CUBE][0].def.point = c.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_CUBE][1].def.point = s.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_CUBE][2].def.s = x_num;
+//	objectFillOuts[OPERATE_TSPLINE_CUBE][3].def.s = y_num;
+//	objectFillOuts[OPERATE_TSPLINE_CUBE][4].def.s = z_num;
+//}
 
 void RenderViewer::slotCreateUVSphereTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_UVSPHERE]);
-	dialog->setWindowTitle(tr("Create a UVSphere TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateUVSphereTSplineAccepted);
-	dialog->open();
+	DialogAuto dialog(this);
+
+	dialog.SetData(tr("球体"),
+		{
+		{tr("位置")},
+		{tr("中心"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("形状")},
+		{tr("半径"),1.0,""},
+		{tr("径向分段"),(size_t)8},
+		{tr("纬度分段"),(size_t)8},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createUVSphereObject(MPoint3(data[1].value.c3), data[3].value.d,
+			data[4].value.i, data[5].value.i);
+	}
 }
 
-void RenderViewer::slotCreateUVSphereTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 c(data[0].second.point);
-	double radius = data[1].second.d;
-	size_t rf_num = data[2].second.s;
-	size_t vf_num = data[3].second.s;
-	coreCommand_->createUVSphereObject(c, radius, rf_num, vf_num);
-	update();
-
-	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][0].def.point = c.Coord();
-	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][1].def.d = radius;
-	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][2].def.s = rf_num;
-	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][3].def.s = vf_num;
-}
+//void RenderViewer::slotCreateUVSphereTSplineAccepted(const ParamDialog::Response& data) {
+//	MPoint3 c(data[0].second.point);
+//	double radius = data[1].second.d;
+//	size_t rf_num = data[2].second.s;
+//	size_t vf_num = data[3].second.s;
+//	coreCommand_->createUVSphereObject(c, radius, rf_num, vf_num);
+//	update();
+//
+//	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][0].def.point = c.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][1].def.d = radius;
+//	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][2].def.s = rf_num;
+//	objectFillOuts[OPERATE_TSPLINE_UVSPHERE][3].def.s = vf_num;
+//}
 
 void RenderViewer::slotCreateQuadSphereTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_QUADSPHERE]);
-	dialog->setWindowTitle(tr("Create a Quad Sphere TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateQuadSphereTSplineAccepted);
-	dialog->open();
-}
-void RenderViewer::slotCreateQuadSphereTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 c(data[0].second.point);
-	double radius = data[1].second.d;
-	size_t subtime = data[2].second.s;
-	coreCommand_->createSubdSphereObject(c, radius, subtime);
-	update();
+	//dialog->addElements(objectFillOuts[OPERATE_TSPLINE_QUADSPHERE]);
+	//dialog->setWindowTitle(tr("Create a Quad Sphere TSpline"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateQuadSphereTSplineAccepted);
+	//dialog->open();
+	DialogAuto dialog(this);
 
-	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE][0].def.point = c.Coord();
-	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE][1].def.d = radius;
-	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE][2].def.s = subtime;
+	dialog.SetData(tr("球体"),
+		{
+		{tr("位置")},
+		{tr("中心"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("形状")},
+		{tr("半径"),1.0,""},
+		{tr("细分次数"),(size_t)2},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createSubdSphereObject(MPoint3(data[1].value.c3), data[3].value.d,
+			data[4].value.i);
+	}
+
 }
+//void RenderViewer::slotCreateQuadSphereTSplineAccepted(const ParamDialog::Response& data) {
+//	MPoint3 c(data[0].second.point);
+//	double radius = data[1].second.d;
+//	size_t subtime = data[2].second.s;
+//	coreCommand_->createSubdSphereObject(c, radius, subtime);
+//	update();
+//
+//	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE][0].def.point = c.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE][1].def.d = radius;
+//	objectFillOuts[OPERATE_TSPLINE_QUADSPHERE][2].def.s = subtime;
+//}
 
 
 void RenderViewer::slotCreateCylinderTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CYLINDER]);
-	dialog->setWindowTitle(tr("Create a Cylinder TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateCylinderTSplineAccepted);
-	dialog->open();
-}
-void RenderViewer::slotCreateCylinderTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 c(data[0].second.point);
-	MVector3 v(data[1].second.point);
-	double radius = data[2].second.d;
-	double height = data[3].second.d;
-	size_t rf_num = data[4].second.s;
-	size_t vf_num = data[5].second.s;
-	bool top = data[6].second.b;
-	bool bottom = data[7].second.b;
-	coreCommand_->createCylinderObject(c, v, radius, height, rf_num, vf_num, top, bottom);
-	update();
+	//dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CYLINDER]);
+	//dialog->setWindowTitle(tr("Create a Cylinder TSpline"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateCylinderTSplineAccepted);
+	//dialog->open();
+	DialogAuto dialog(this);
 
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][0].def.point = c.Coord();
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][1].def.vec = v.Coord();
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][2].def.d = radius;
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][3].def.d = height;
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][4].def.s = rf_num;
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][5].def.s = vf_num;
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][6].def.b = top;
-	objectFillOuts[OPERATE_TSPLINE_CYLINDER][7].def.b = bottom;
+	dialog.SetData(tr("圆柱体"),
+		{
+		{tr("位置")},
+		{tr("中心"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("轴向"),AMCAX::Coord3(0.0,0.0,1.0)},
+		{tr("形状")},
+		{tr("半径"),1.0,""},
+		{tr("高度"),2.0,""},
+		{tr("径向分段"),(size_t)8},
+		{tr("高度分段"),(size_t)4},
+		{tr("顶部封盖"),true},
+		{tr("底部封盖"),true},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createCylinderObject(MPoint3(data[1].value.c3), MVector3(data[2].value.c3),
+			data[4].value.d, data[5].value.d, data[6].value.i, data[7].value.i, data[8].value.b,
+			data[9].value.b);
+	}
 }
+
+//void RenderViewer::slotCreateCylinderTSplineAccepted(const ParamDialog::Response& data) {
+//	MPoint3 c(data[0].second.point);
+//	MVector3 v(data[1].second.point);
+//	double radius = data[2].second.d;
+//	double height = data[3].second.d;
+//	size_t rf_num = data[4].second.s;
+//	size_t vf_num = data[5].second.s;
+//	bool top = data[6].second.b;
+//	bool bottom = data[7].second.b;
+//	coreCommand_->createCylinderObject(c, v, radius, height, rf_num, vf_num, top, bottom);
+//	update();
+//
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][0].def.point = c.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][1].def.vec = v.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][2].def.d = radius;
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][3].def.d = height;
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][4].def.s = rf_num;
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][5].def.s = vf_num;
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][6].def.b = top;
+//	objectFillOuts[OPERATE_TSPLINE_CYLINDER][7].def.b = bottom;
+//}
 
 void RenderViewer::slotCreateConeTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CONE]);
-	dialog->setWindowTitle(tr("Create a Cone TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateConeTSplineAccepted);
-	dialog->open();
-}
-void RenderViewer::slotCreateConeTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 c(data[0].second.point);
-	MVector3 v(data[1].second.point);
-	double radius = data[2].second.d;
-	double height = data[3].second.d;
-	size_t rf_num = data[4].second.s;
-	size_t vf_num = data[5].second.s;
-	bool bottom = data[6].second.b;
-	coreCommand_->createConeObject(c, v, radius, height, rf_num, vf_num, bottom);
-	update();
+	//dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CONE]);
+	//dialog->setWindowTitle(tr("Create a Cone TSpline"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateConeTSplineAccepted);
+	//dialog->open();
 
-	objectFillOuts[OPERATE_TSPLINE_CONE][0].def.point = c.Coord();
-	objectFillOuts[OPERATE_TSPLINE_CONE][1].def.point = v.Coord();
-	objectFillOuts[OPERATE_TSPLINE_CONE][2].def.d = radius;
-	objectFillOuts[OPERATE_TSPLINE_CONE][3].def.d = height;
-	objectFillOuts[OPERATE_TSPLINE_CONE][4].def.s = rf_num;
-	objectFillOuts[OPERATE_TSPLINE_CONE][5].def.s = vf_num;
-	objectFillOuts[OPERATE_TSPLINE_CONE][6].def.b = bottom;
+	DialogAuto dialog(this);
+
+	dialog.SetData(tr("圆锥"),
+		{
+		{tr("位置")},
+		{tr("中心"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("轴向"),AMCAX::Coord3(0.0,0.0,1.0)},
+		{tr("形状")},
+		{tr("半径"),1.0,""},
+		{tr("高度"),2.0,""},
+		{tr("径向分段"),(size_t)8},
+		{tr("高度分段"),(size_t)4},
+		{tr("底部封盖"),true},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createConeObject(MPoint3(data[1].value.c3), MVector3(data[2].value.c3),
+			data[4].value.d, data[5].value.d, data[6].value.i, data[7].value.i, data[8].value.b);
+	}
 }
+//void RenderViewer::slotCreateConeTSplineAccepted(const ParamDialog::Response& data) {
+//	MPoint3 c(data[0].second.point);
+//	MVector3 v(data[1].second.point);
+//	double radius = data[2].second.d;
+//	double height = data[3].second.d;
+//	size_t rf_num = data[4].second.s;
+//	size_t vf_num = data[5].second.s;
+//	bool bottom = data[6].second.b;
+//	coreCommand_->createConeObject(c, v, radius, height, rf_num, vf_num, bottom);
+//	update();
+//
+//	objectFillOuts[OPERATE_TSPLINE_CONE][0].def.point = c.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_CONE][1].def.point = v.Coord();
+//	objectFillOuts[OPERATE_TSPLINE_CONE][2].def.d = radius;
+//	objectFillOuts[OPERATE_TSPLINE_CONE][3].def.d = height;
+//	objectFillOuts[OPERATE_TSPLINE_CONE][4].def.s = rf_num;
+//	objectFillOuts[OPERATE_TSPLINE_CONE][5].def.s = vf_num;
+//	objectFillOuts[OPERATE_TSPLINE_CONE][6].def.b = bottom;
+//}
 
 void RenderViewer::slotCreateTorusTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_TORUS]);
-	dialog->setWindowTitle(tr("Create a Torus TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateTorusTSplineAccepted);
-	dialog->open();
-}
-void RenderViewer::slotCreateTorusTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 c(data[0].second.point);
-	double radius0 = data[1].second.d;
-	double radius1 = data[2].second.d;
-	size_t rf_num = data[3].second.s;
-	size_t vf_num = data[4].second.s;
-	coreCommand_->creatTourObject(c, radius0, radius1, rf_num, vf_num);
-	update();
+	//dialog->addElements(objectFillOuts[OPERATE_TSPLINE_TORUS]);
+	//dialog->setWindowTitle(tr("Create a Torus TSpline"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateTorusTSplineAccepted);
+	//dialog->open();
+	DialogAuto dialog(this);
 
-	objectFillOuts[OPERATE_TSPLINE_TORUS][0].def.point = c.Coord();
-	objectFillOuts[OPERATE_TSPLINE_TORUS][1].def.d = radius0;
-	objectFillOuts[OPERATE_TSPLINE_TORUS][2].def.d = radius1;
-	objectFillOuts[OPERATE_TSPLINE_TORUS][3].def.s = rf_num;
-	objectFillOuts[OPERATE_TSPLINE_TORUS][4].def.s = vf_num;
+	dialog.SetData(tr("圆环"),
+		{
+		{tr("位置")},
+		{tr("中心"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("形状")},
+		{tr("主环半径"),2.0,""},
+		{tr("管道半径"),1.0,""},
+		{tr("主环分段"),(size_t)8},
+		{tr("管道分段"),(size_t)16},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->creatTourObject(MPoint3(data[1].value.c3), data[3].value.d,
+			data[4].value.d, data[5].value.i, data[6].value.i);
+	}
 }
+//void RenderViewer::slotCreateTorusTSplineAccepted(const ParamDialog::Response& data) {
+//	//MPoint3 c(data[0].second.point);
+//	//double radius0 = data[1].second.d;
+//	//double radius1 = data[2].second.d;
+//	//size_t rf_num = data[3].second.s;
+//	//size_t vf_num = data[4].second.s;
+//	//coreCommand_->creatTourObject(c, radius0, radius1, rf_num, vf_num);
+//	//update();
+//
+//	//objectFillOuts[OPERATE_TSPLINE_TORUS][0].def.point = c.Coord();
+//	//objectFillOuts[OPERATE_TSPLINE_TORUS][1].def.d = radius0;
+//	//objectFillOuts[OPERATE_TSPLINE_TORUS][2].def.d = radius1;
+//	//objectFillOuts[OPERATE_TSPLINE_TORUS][3].def.s = rf_num;
+//	//objectFillOuts[OPERATE_TSPLINE_TORUS][4].def.s = vf_num;
+//}
 
 void RenderViewer::slotCreateCircularTSpline() {
-	dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CIRCULAR]);
-	dialog->setWindowTitle(tr("Create a Circular TSpline"));
-	connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateCircularTSplineAccepted);
-	dialog->open();
-}
-void RenderViewer::slotCreateCircularTSplineAccepted(const ParamDialog::Response& data) {
-	MPoint3 c(data[0].second.point);
-	// //double angle = M_PI * 2;
-	// //size_t seg = 8;
-	// double angle = M_PI / 2;
-	// //size_t seg = angle / (M_PI / 2) + 1;
-	// size_t seg = 4;
-	double radius = data[1].second.d;
-	double angle = data[2].second.d;
-	size_t c_num = data[3].second.s;
-	coreCommand_->createCircular(c, radius, angle * M_PI, c_num);
-	update();
+	//dialog->addElements(objectFillOuts[OPERATE_TSPLINE_CIRCULAR]);
+	//dialog->setWindowTitle(tr("Create a Circular TSpline"));
+	//connect(dialog, &ParamDialog::dataReady, this, &RenderViewer::slotCreateCircularTSplineAccepted);
+	//dialog->open();
+	DialogAuto dialog(this);
 
-	objectFillOuts[OPERATE_TSPLINE_CIRCULAR][0].def.point = c.Coord();
-	objectFillOuts[OPERATE_TSPLINE_CIRCULAR][1].def.d = radius;
-	objectFillOuts[OPERATE_TSPLINE_CIRCULAR][2].def.d = angle;
-	objectFillOuts[OPERATE_TSPLINE_CIRCULAR][3].def.s = c_num;
+	dialog.SetData(tr("扇形"),
+		{
+		{tr("位置")},
+		{tr("中心"),AMCAX::Coord3(0.0,0.0,0.0)},
+		{tr("形状")},
+		{tr("半径"),2.0,""},
+		{tr("弧度"),1.0,"π"},
+		{tr("分段"),(size_t)8},
+		});
+
+
+	if (dialog.exec())
+	{
+		auto& data = dialog.GetData();
+
+		coreCommand_->createCircular(MPoint3(data[1].value.c3), data[3].value.d,
+			data[4].value.d * M_PI, data[5].value.i);
+	}
+
 }
+//void RenderViewer::slotCreateCircularTSplineAccepted(const ParamDialog::Response& data) {
+//	//MPoint3 c(data[0].second.point);
+//	//// //double angle = M_PI * 2;
+//	//// //size_t seg = 8;
+//	//// double angle = M_PI / 2;
+//	//// //size_t seg = angle / (M_PI / 2) + 1;
+//	//// size_t seg = 4;
+//	//double radius = data[1].second.d;
+//	//double angle = data[2].second.d;
+//	//size_t c_num = data[3].second.s;
+//	//coreCommand_->createCircular(c, radius, angle * M_PI, c_num);
+//	//update();
+//
+//	//objectFillOuts[OPERATE_TSPLINE_CIRCULAR][0].def.point = c.Coord();
+//	//objectFillOuts[OPERATE_TSPLINE_CIRCULAR][1].def.d = radius;
+//	//objectFillOuts[OPERATE_TSPLINE_CIRCULAR][2].def.d = angle;
+//	//objectFillOuts[OPERATE_TSPLINE_CIRCULAR][3].def.s = c_num;
+//}
 
 void RenderViewer::slotAddCreaseEdge()
 {
@@ -1772,4 +1966,19 @@ void RenderViewer::slotBRepExtrudeMesh()
 {
 	BaseObjectOperation(SelectModel::FACE_MODEL, OperationType::CTRL_OPERATION,
 		MeshOperationType::MeshExtrudeFaceNew);
+}
+
+void RenderViewer::setSelectModel(SelectModel model) {
+	if (select_model_ != model)
+	{
+		if (coreCommand_)
+			coreCommand_->setMeshOperationType(acamcad::MeshOperationType::NO_operotion);
+		setOperateType(OperationType::NO_OPERATION);
+		clearSelected();
+	}
+
+	select_model_ = model;
+	if (listen_)
+		listen_->refresh_select(model);
+
 }

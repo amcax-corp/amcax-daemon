@@ -34,7 +34,7 @@ namespace acamcad
 		{
 			std::vector<int> edges = getSelectSubList(s_info_list_);
 
-			result = AMCAX::SubD::MeshSplit::SplitFaceWithVertex(adapter->mesh->mesh(), edges);
+			result = AMCAX::SubD::MeshSplit::SplitFaceWithVertex(adapter->mesh->getShape(), edges);
 		}
 		break;
 		case DataType::TSPLINEU_TYPE:
@@ -43,10 +43,10 @@ namespace acamcad
 
 			AMCAX::TMS::TMSplineSplit tool;
 
-			result = tool.CanSplitFaceWithVertex(adapter->tSpline->getTSpline(), edges);
+			result = tool.CanSplitFaceWithVertex(adapter->tSpline->getShape(), edges);
 
 			if (result) {
-				tool.SplitFaceWithVertex(adapter->tSpline->getTSpline(), edges);
+				tool.SplitFaceWithVertex(adapter->tSpline->getShape(), edges);
 				adapter->updateDraw();
 			}
 		}

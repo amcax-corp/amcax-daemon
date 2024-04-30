@@ -67,9 +67,9 @@ namespace acamcad
 			case acamcad::DataType::MESH_TYPE:
 			{
 				int id0, id1;
-				AMCAX::SubD::MeshTool::EdgeVertexIndexs(adapter->mesh->mesh(), s_id, id0, id1);
-				AMCAX::Point3 p0 = AMCAX::SubD::MeshTool::Position(adapter->mesh->mesh(), id0),
-					p1 = AMCAX::SubD::MeshTool::Position(adapter->mesh->mesh(), id1);
+				AMCAX::SubD::MeshTool::EdgeVertexIndexs(adapter->mesh->getShape(), s_id, id0, id1);
+				AMCAX::Point3 p0 = AMCAX::SubD::MeshTool::Position(adapter->mesh->getShape(), id0),
+					p1 = AMCAX::SubD::MeshTool::Position(adapter->mesh->getShape(), id1);
 
 				direction_ = (p1.Coord() - p0.Coord()).Normalized();
 			}
@@ -101,7 +101,7 @@ namespace acamcad
 			break;
 			case acamcad::DataType::MESH_TYPE:
 			{
-				direction_ = AMCAX::SubD::MeshTool::FaceNormal(adapter->mesh->mesh(), s_id).Coord().Normalized();
+				direction_ = AMCAX::SubD::MeshTool::FaceNormal(adapter->mesh->getShape(), s_id).Coord().Normalized();
 			}
 			break;
 			default:

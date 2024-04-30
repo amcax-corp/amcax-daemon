@@ -15,25 +15,18 @@
 */
 #include "DataManager.h"
 #include "../Object/BaseObject.h"
+#include "LocalDataManager.h"
 
 using namespace acamcad;
 
 DataManager::DataManager() : data_persistent_(0)
 {
-
+	//local.initHistory();
 }
 
 DataManager::~DataManager()
 {
-	if (objects_.size() != 0)
-	{
-		for (ObjectIter o_it = objects_begin(); o_it != objects_end(); ++o_it)
-		{
-			BaseObject* obj = *o_it;
-			delete obj;
-		}
-	}
-	objects_.clear();
+	deleteAllObject();
 }
 
 
@@ -152,6 +145,19 @@ void DataManager::deleteObject(AdapterObject* object)
 	}
 }
 
+void DataManager::deleteAllObject()
+{
+	if (objects_.size() != 0)
+	{
+		for (ObjectIter o_it = objects_begin(); o_it != objects_end(); ++o_it)
+		{
+			BaseObject* obj = *o_it;
+			delete obj;
+		}
+	}
+	objects_.clear();
+}
+
 void DataManager::restoreObject(AdapterObject* object)
 {
 	object->setPersistentId(data_persistent_); data_persistent_++;
@@ -162,18 +168,20 @@ void DataManager::restoreObject(AdapterObject* object)
 
 void DataManager::addObject_UndoManage(AdapterObject* object)
 {
-	AdapterObject* new_object = new AdapterObject(*object, true);
+	AdapterObject* new_object = object;
+
+	new_object->setVisible(true);
 	new_object->updateDraw();
 
 	objects_.push_back(new_object);
 }
 
 
-void DataManager::deleteObject_UndoManage(AdapterObject* object)
+void DataManager::deleteObject_UndoManage(int persistentId)
 {
 	for (ObjectIter o_it = objects_begin(); o_it != objects_end(); o_it++)
 	{
-		if ((*o_it)->persistentId() == object->persistentId())
+		if ((*o_it)->persistentId() == persistentId)
 		{
 			AdapterObject* obj = *o_it;
 			delete obj;

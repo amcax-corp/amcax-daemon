@@ -16,20 +16,20 @@ namespace acamcad
 {
 
 	TSplineObject::TSplineObject(AdapterObject* parent) :AdapterObjectParent(parent),
-		spline_(nullptr), scale_(1)
+		scale_(1)
 	{
 		//setDataType(DataType::TSPLINEU_TYPE);
 		draw_tool_ = std::make_unique<TSplineObjectDraw>(parent);
 	}
 
 	TSplineObject::TSplineObject(AdapterObject* parent, const TSplineObject& object, bool isDraw) :
-		AdapterObjectParent(parent), spline_(nullptr), scale_(1)
+		AdapterObjectParent(parent), scale_(1)
 		//BaseObject(object), spline_(nullptr)
 	{
 		if (object.spline_ != nullptr)
 		{
 			//AMCAX::TMS::TMSplineCopy copy;
-			spline_ = AMCAX::TMS::TMSplineCopy().CloneTMSpline(object.spline_);
+			spline_.reset(AMCAX::TMS::TMSplineCopy().CloneTMSpline(object.getShape()));
 			//tcopy.copyTspline(object.spline_, spline_);
 		}
 		if (isDraw) {
@@ -41,40 +41,35 @@ namespace acamcad
 
 	TSplineObject::~TSplineObject()
 	{
-		if (spline_ != nullptr)
-		{
-			spline_->clear();
-			delete spline_;
-		}
 	}
 
-	AMCAX::TMS::TMSpline* TSplineObject::getTSpline()
+	AMCAX::TMS::TMSpline* TSplineObject::getShape()
 	{
-		return spline_;
+		return spline_.get();
 	}
 
-	const AMCAX::TMS::TMSpline* TSplineObject::getTSpline() const
+	const AMCAX::TMS::TMSpline* TSplineObject::getShape() const
 	{
-		return spline_;
+		return spline_.get();
 	}
 
-	void TSplineObject::setTSpline(AMCAX::TMS::TMSpline* tsp)
+	void TSplineObject::setShape(AMCAX::TMS::TMSpline* tsp)
 	{
-		if (spline_ != nullptr)
-		{
-			delete spline_;
-			spline_ = nullptr;
+		//if (spline_ != nullptr)
+		//{
+		//	delete spline_;
+		//	spline_ = nullptr;
 
-			draw_tool_->clear();
-		}
+		//	draw_tool_->clear();
+		//}
 
-		spline_ = tsp;
+		spline_.reset(tsp);
 	}
 
-	void TSplineObject::assignTSpline()
+	void TSplineObject::assignShape()
 	{
 		if (spline_ == nullptr)
-			spline_ = new AMCAX::TMS::TMSpline();
+			spline_ = std::make_unique<AMCAX::TMS::TMSpline>();
 	}
 
 	// select vert edge face
@@ -83,14 +78,14 @@ namespace acamcad
 		sv_id = -1;
 
 		//auto ids = AMCAX::SubD::MeshTool::FaceVertexIndexs(mesh_, f_id);
-		auto ids = AMCAX::TMS::TMSplineTool::FaceVertexIndexs(spline_, f_id);
+		auto ids = AMCAX::TMS::TMSplineTool::FaceVertexIndexs(getShape(), f_id);
 		AMCAX::Coord3 coord;
 		double len_min;
 
 		for (int i = 0; i < ids.size(); i++)
 		{
 
-			AMCAX::Point3 position = AMCAX::TMS::TMSplineTool::ControlPosition(spline_, ids[i]);
+			AMCAX::Point3 position = AMCAX::TMS::TMSplineTool::ControlPosition(getShape(), ids[i]);
 			double len = MathUtils::distPointLineSquared(position.Coord(), begin.Coord(), end.Coord(), coord);
 
 			if (len > 0.1) {
@@ -110,15 +105,15 @@ namespace acamcad
 	void TSplineObject::selectEdgeWithFaceId(const AMCAX::Vector3& begin, const AMCAX::Vector3& end, int f_id, int& se_id)
 	{
 		se_id = -1;
-		auto ids = AMCAX::TMS::TMSplineTool::FaceEdgeIndexs(spline_, f_id);
+		auto ids = AMCAX::TMS::TMSplineTool::FaceEdgeIndexs(getShape(), f_id);
 		AMCAX::Coord3 coord0, coord1;
 		double len_min = 0;
 
 		for (int i = 0; i < ids.size(); i++) {
 			int id0, id1;
-			AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(spline_, ids[i], id0, id1);
-			AMCAX::Point3 p0 = AMCAX::TMS::TMSplineTool::ControlPosition(spline_, id0),
-				p1 = AMCAX::TMS::TMSplineTool::ControlPosition(spline_, id1);
+			AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(getShape(), ids[i], id0, id1);
+			AMCAX::Point3 p0 = AMCAX::TMS::TMSplineTool::ControlPosition(getShape(), id0),
+				p1 = AMCAX::TMS::TMSplineTool::ControlPosition(getShape(), id1);
 			double len = MathUtils::distLine_SLineSquared(p0.Coord(), p1.Coord(), begin.Coord(), end.Coord(), coord0, coord1);
 
 			if (len > 0.1) {
@@ -155,57 +150,57 @@ namespace acamcad
 
 	//===========================================================================
 
-	bool TSplineObject::loadSpline(const QString& _filename)
-	{
-		parent_->setFromFileName(_filename);
+	//bool TSplineObject::loadSpline(const QString& _filename)
+	//{
+	//	parent_->setFromFileName(_filename);
 
-		// call the local function to update names
-		//parent_->setName(parent_->name());
+	//	// call the local function to update names
+	//	//parent_->setName(parent_->name());
 
-		std::string filename = _filename.toStdString();
+	//	std::string filename = _filename.toStdString();
 
-		AMCAX::TMS::TMSplineIO io;
+	//	AMCAX::TMS::TMSplineIO io;
 
-		bool ok = io.LoadTMSpline(filename, spline_);
-		if (ok)
-		{
-			updateDraw();
-			parent_->show();
-		}
-		else
-		{
-			std::cout << "Load File fall" << std::endl;
-		}
+	//	bool ok = io.LoadTMSpline(filename, getShape());
+	//	if (ok)
+	//	{
+	//		updateDraw();
+	//		parent_->show();
+	//	}
+	//	else
+	//	{
+	//		std::cout << "Load File fall" << std::endl;
+	//	}
 
-		return ok;
-	}
+	//	return ok;
+	//}
 
-	bool TSplineObject::saveSpline(const QString& _filename)
-	{
-		std::string filename = _filename.toStdString();
+	//bool TSplineObject::saveSpline(const QString& _filename)
+	//{
+	//	std::string filename = _filename.toStdString();
 
-		AMCAX::TMS::TMSplineIO io;
+	//	AMCAX::TMS::TMSplineIO io;
 
-		bool ok = io.WriteTMSpline(filename, spline_);
+	//	bool ok = io.WriteTMSpline(filename, spline_);
 
-		if (!ok)
-		{
-			std::cout << "Save File fall" << std::endl;
-		}
-		return ok;
-	}
+	//	if (!ok)
+	//	{
+	//		std::cout << "Save File fall" << std::endl;
+	//	}
+	//	return ok;
+	//}
 
-	bool TSplineObject::saveSplineSTL(const QString& filename)
-	{
-		//TSplineObjectDraw* dt = dynamic_cast<TSplineObjectDraw*>(draw_tool_);
-		return draw_tool_->saveSTL(filename.toStdString());
-	}
+	//bool TSplineObject::saveSplineSTL(const QString& filename)
+	//{
+	//	//TSplineObjectDraw* dt = dynamic_cast<TSplineObjectDraw*>(draw_tool_);
+	//	return draw_tool_->saveSTL(filename.toStdString());
+	//}
 
-	bool TSplineObject::saveSplineOBJ(const QString& filename)
-	{
-		//TSplineObjectDraw* dt = dynamic_cast<TSplineObjectDraw*>(draw_tool_);
-		return draw_tool_->saveOBJ(filename.toStdString());
-	}
+	//bool TSplineObject::saveSplineOBJ(const QString& filename)
+	//{
+	//	//TSplineObjectDraw* dt = dynamic_cast<TSplineObjectDraw*>(draw_tool_);
+	//	return draw_tool_->saveOBJ(filename.toStdString());
+	//}
 
 	//bool TSplineObject::saveSplineFrep(const QString& filename)
 	//{
@@ -227,7 +222,7 @@ namespace acamcad
 		draw_tool_->updatedrawState();
 
 		if (spline_)
-			AMCAX::TMS::TMSplineTool::UpdateNormal(spline_);
+			AMCAX::TMS::TMSplineTool::UpdateNormal(getShape());
 	}
 
 	//===========================================================================
@@ -265,7 +260,7 @@ namespace acamcad
 		//for()
 		for (int i = 0; i < edge_id.size(); i++) {
 			int v0, v1;
-			AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(spline_, edge_id[i], v0, v1);
+			AMCAX::TMS::TMSplineTool::EdgeVertexIndexs(getShape(), edge_id[i], v0, v1);
 
 			mesh_v_id_back_.push_back(v0);
 			mesh_v_id_back_.push_back(v1);
@@ -287,7 +282,7 @@ namespace acamcad
 		//vert_id.erase(std::unique(vert_id.begin(), vert_id.end()), vert_id.end());
 
 		for (int i = 0; i < face_id.size(); i++) {
-			std::vector<int> vert_id = AMCAX::TMS::TMSplineTool::FaceVertexIndexs(spline_, face_id[i]);
+			std::vector<int> vert_id = AMCAX::TMS::TMSplineTool::FaceVertexIndexs(getShape(), face_id[i]);
 
 			//mesh_v_id_back_.push_back( vert_id);
 
@@ -330,9 +325,9 @@ namespace acamcad
 		trfScale.SetAffinity(ct, scale_);
 		trf.SetGTransformation(trfScale);
 
-		trf.TransformTMSplineVertices(spline_, mesh_v_id_back_);
+		trf.TransformTMSplineVertices(getShape(), mesh_v_id_back_);
 		scale_ = scale;
-		trf.TransformReprocessing(spline_);
+		trf.TransformReprocessing(getShape());
 	}
 
 	void TSplineObject::meshScalePlane(const AMCAX::Vector3& center, const AMCAX::Vector3& normal, double scale)
@@ -357,9 +352,9 @@ namespace acamcad
 		trfScale.SetAffinity(ct, scale_);
 		trf.SetGTransformation(trfScale);
 
-		trf.TransformTMSplineVertices(spline_, mesh_v_id_back_);
+		trf.TransformTMSplineVertices(getShape(), mesh_v_id_back_);
 		scale_ = scale;
-		trf.TransformReprocessing(spline_);
+		trf.TransformReprocessing(getShape());
 	}
 
 	void TSplineObject::meshRotation(const AMCAX::Vector3& center, const AMCAX::Vector3& axis, double angle)
@@ -372,8 +367,8 @@ namespace acamcad
 
 		trsf.SetTransformation(trfRotation);
 
-		trsf.TransformTMSplineVertices(spline_, mesh_v_id_back_);
-		trsf.TransformReprocessing(spline_);
+		trsf.TransformTMSplineVertices(getShape(), mesh_v_id_back_);
+		trsf.TransformReprocessing(getShape());
 	}
 
 	void TSplineObject::meshMove(const AMCAX::Vector3& v, double dis)
@@ -385,9 +380,9 @@ namespace acamcad
 		AMCAX::TMS::TMSplineTransform trf;
 		trf.SetTransformation(trMove);
 
-		trf.TransformTMSplineVertices(spline_, mesh_v_id_back_);
+		trf.TransformTMSplineVertices(getShape(), mesh_v_id_back_);
 
-		trf.TransformReprocessing(spline_);
+		trf.TransformReprocessing(getShape());
 	}
 
 	const ObjectDraw* TSplineObject::getDrawTool() const
@@ -405,9 +400,9 @@ namespace acamcad
 		trfMirror.SetMirror(frame);
 
 		trf.SetTransformation(trfMirror);
-		trf.TransformTMSpline(spline_);
+		trf.TransformTMSpline(getShape());
 
-		trf.TransformReprocessing(spline_);
+		trf.TransformReprocessing(getShape());
 	}
 
 	//===========================================================

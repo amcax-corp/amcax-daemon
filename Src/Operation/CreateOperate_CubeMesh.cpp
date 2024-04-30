@@ -18,7 +18,7 @@ namespace acamcad
 		AMCAX::Point3 bb_max = AMCAX::Point3(bb_max_.X(), bb_max_.Y(), bb_max_.Z());
 		AMCAX::SubD::MeshMakeCube cube(bb_min, bb_max, segX_, segY_, segZ_);
 
-		adapter->mesh->SetMesh(cube.BuildMesh());
+		adapter->mesh->setShape(cube.BuildMesh());
 		adapter->updateDraw();
 
 		return true;

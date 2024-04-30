@@ -53,11 +53,12 @@ namespace acamcad
 		AdapterObject* copyObject(AdapterObject* object);
 		void deleteObject(AdapterObject* object);
 
+		void deleteAllObject();
 		void restoreObject(AdapterObject* object);	//恢复一个被删除的单元，在备份的时候使用
 
 		//UndoManager
 		virtual	void addObject_UndoManage(AdapterObject* object)  override;
-		virtual void deleteObject_UndoManage(AdapterObject* object) override;
+		virtual void deleteObject_UndoManage(int persistentId) override;
 		virtual void sortObject_UndoManage() override;
 
 
