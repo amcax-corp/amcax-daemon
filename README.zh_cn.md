@@ -1,5 +1,6 @@
 # 九韶精灵 简介
 
+[![en-us](https://img.shields.io/badge/en-us-yellow.svg)](./README.md)
 [![中文-简体](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-%E7%AE%80%E4%BD%93-red.svg)](./README.zh_cn.md)
 
 **版本 1.0.3**

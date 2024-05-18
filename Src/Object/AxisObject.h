@@ -20,6 +20,7 @@
 
 namespace acamcad
 {
+	class ObjectDraw;
 	class Arrow : BaseObject
 	{
 	public:

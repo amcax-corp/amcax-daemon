@@ -381,7 +381,7 @@ void acamcad::BRepObjectDraw::updatedrawState()
 		for (int vid = 0; vid < mesh->NVertices(); ++vid)
 		{
 			const AMCAX::Point3& p = mesh->Vertex(vid).Transformed(tr);
-			AMCAX::Direction3& n = mesh->Normal(vid).Transformed(trn);
+			AMCAX::Direction3 n = mesh->Normal(vid).Transformed(trn);
 
 			if (fOri == AMCAX::OrientationType::Reversed) { n = n.Reversed(); }
 

@@ -11,6 +11,7 @@
 
 namespace acamcad
 {
+	class TSplineObjectDraw;
 
 	class TSplineObject : public AdapterObjectParent
 	{

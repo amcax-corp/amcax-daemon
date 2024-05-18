@@ -346,7 +346,7 @@ namespace acamcad
 
 			for (int i = 0; i < ids.size(); i++)
 			{
-				auto& p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), ids[i]);
+				auto p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), ids[i]);
 				if (i == 0)
 				{
 					x_min = x_max = p.X();
@@ -442,7 +442,7 @@ namespace acamcad
 		break;
 		case acamcad::DataType::TSPLINEU_TYPE:
 		{
-			auto& p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), vetex_id);
+			auto p = AMCAX::TMS::TMSplineTool::ControlPosition(tSpline->getShape(), vetex_id);
 			position = p.Coord();
 		}
 		break;

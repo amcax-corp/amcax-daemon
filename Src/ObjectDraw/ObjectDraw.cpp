@@ -16,7 +16,9 @@
 #include "ObjectDraw.h"
 #include "../Object/AdapterObject.h"
 
+#if _WIN32 || _WIN64
 #include <Windows.h>
+#endif
 #include <GL/glu.h>
 
 acamcad::ObjectDraw::ObjectDraw() :AdapterObjectParent(NULL)

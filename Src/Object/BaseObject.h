@@ -21,6 +21,7 @@
 namespace acamcad
 {
 	class MOperation;
+	class ObjectDraw;
 
 	class BaseObject : public QObject
 	{

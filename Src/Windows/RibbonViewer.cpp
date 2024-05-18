@@ -48,7 +48,7 @@
 #include "RenderViewer.h"
 #include "../Core/DataManager.h"
 #include "../Core/ACAMCore.h"
-#include <qtextcodec.h>
+//#include <qtextcodec.h>
 #include <functional>
 #include <qtoolbar.h>
 #include <QDateTime>

@@ -20,7 +20,9 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QGLContext>
+#endif
 #include <QImage>
 #include <QMessageBox>
 #include <QMouseEvent>
@@ -72,7 +74,7 @@ QGLViewer::QGLViewer(QWidget* parent, Qt::WindowFlags flags)
 	defaultConstructor();
 }
 
-#ifndef DOXYGEN
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 /*! Same as QGLViewer(), but a \c QGLContext can be provided so that viewers share GL contexts,
 even with \c QGLContext sub-classes (use \p shareWidget otherwise). */
 QGLViewer::QGLViewer(QGLContext* context, QWidget* parent,
@@ -159,7 +161,7 @@ void QGLViewer::initializeGL() {
 
 	//init glut
 	int x = 1;
-	char* p = "exe";
+	char* p = (char*)"exe";
 
 	glutInit(&x, &p);
 }
