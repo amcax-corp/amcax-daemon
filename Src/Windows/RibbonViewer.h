@@ -12,6 +12,7 @@ class QComboBox;
 class QCloseEvent;
 class QLineEdit;
 #include <qtoolbar.h>
+#include <QToolButton>
 
 
 #include <memory>

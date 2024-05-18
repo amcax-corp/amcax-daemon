@@ -18,6 +18,7 @@
 #include "../Core/DataManager.h"
 #include "../Operation/MOperate_Select.h"
 #include "../Operation/MOperate_getCenter.h"
+#include <QPoint>
 
 using namespace acamcad;
 
@@ -370,7 +371,7 @@ AMCAX::Coord3 acamcad::SelectTool::getCenter()
 
 void SelectTool::clearSelected()
 {
-	if(dataManager_)
+	if (dataManager_)
 		dataManager_->clearSelected();
 
 	select_info_list_.clear();

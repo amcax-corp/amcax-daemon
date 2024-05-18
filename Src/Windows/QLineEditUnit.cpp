@@ -39,7 +39,7 @@ void QLineEditUnit::SetUnitText(const QString& unitText)
 	this->m_unitButton->setText(unitText);
 	// this->m_unitButton->setVisible(true);
 	//获得文字的宽度
-	int width = this->fontMetrics().width(m_unitButton->text());
+	int width = this->fontMetrics().horizontalAdvance(m_unitButton->text());
 	m_unitButton->setFixedWidth(width);
 	//到单位开头了就往下显示，防止往后输入的内容有一部分在按钮下面
 	QBoxLayout* layout = (QBoxLayout*)this->layout();

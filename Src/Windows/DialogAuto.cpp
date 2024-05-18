@@ -6,7 +6,7 @@
 #include <QPalette>
 #include "QLineEditUnit.h"
 #include <iostream>
-#include <QRegExpValidator>
+//#include <QRegExpValidator>
 #include "IntValidator.h"
 
 #define WIDTH_LINEEDIT_3 80
@@ -272,7 +272,7 @@ namespace acamcad {
 
 				auto c = children();
 
-				for each (auto iter in c)
+				for (auto iter : c)
 				{
 					iter->deleteLater();
 				}
@@ -302,7 +302,7 @@ namespace acamcad {
 
 				auto c = children();
 
-				for each (auto iter in c)
+				for (auto iter : c)
 				{
 					iter->deleteLater();
 				}

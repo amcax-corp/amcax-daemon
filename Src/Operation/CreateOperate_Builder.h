@@ -29,6 +29,7 @@
 #include <modeling/MakeCone.hpp>
 #include <modeling/MakeWedge.hpp>
 #include <modeling/MakeTorus.hpp>
+#include <math/CircleT.hpp>
 //#include <modeling/MakeSweep.hpp>
 //#include <modeling/MakeShape.hpp>
 //#include <modeling/MakeEdge2d.hpp>
@@ -48,8 +49,8 @@ namespace AMCAD
 	class VectorT;
 	template<typename T, int DIM>
 	class FrameT;
-	template<typename T, int DIM>
-	class CircleT;
+	//template<typename T, int DIM>
+	//class CircleT;
 
 	//    class MakeEdge;
 	//    class MakeWire;
@@ -190,7 +191,7 @@ namespace acamcad
 		std::vector<AMCAX::VectorT<double, 3>> vecs;
 		std::vector<AMCAX::FrameT<double, 3>> frames;
 
-		std::vector<AMCAX::CircleT<double, 3>> circles;
+		std::vector<AMCAX::CircleS<3>> circles;
 
 		std::vector<AMCAX::MakeEdge> edges;
 		std::vector<AMCAX::MakeWire> wires;

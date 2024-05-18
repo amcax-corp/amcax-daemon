@@ -14,6 +14,11 @@
 * Author: 
 */
 #include "MathUtils.h"
+
+#ifndef FLT_MIN
+#define FLT_MIN          1.175494351e-38F        // min normalized positive value
+#endif
+
 namespace acamcad
 {
 	int MathUtils::signTwoVector(const AMCAX::Coord3& a, const AMCAX::Coord3& b) {
@@ -112,7 +117,7 @@ namespace acamcad
 		double fDet = fabs(fA00 * fA11 - fA01 * fA01);
 		double fB1, fS, fT, fSqrDist;
 
-		if (fDet >= FLT_MIN)
+		if (fDet > FLT_MIN)
 		{
 			// line segments are not parallel
 			fB1 = -(kDiff | d1);

@@ -14,7 +14,9 @@
 * Author:
 */
 #pragma once
+#if _WIN32 || _WIN64
 #include <Windows.h>
+#endif
 #include <GL/glu.h>
 
 #include "../Core/CoreDefine.h"

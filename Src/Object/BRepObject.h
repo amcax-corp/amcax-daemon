@@ -25,6 +25,8 @@ namespace acamcad
 {
 	class AdapterObject;
 	class AdapterObjectParent;
+	class ObjectDraw;
+	class BRepObjectDraw;
 
 	class BRepObject : public AdapterObjectParent
 	{

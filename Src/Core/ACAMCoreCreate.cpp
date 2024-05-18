@@ -89,10 +89,10 @@ namespace acamcad
 	bool CheckConeParamOK(const AMCAX::Coord3& axis,
 		const double r1, const double r2, const double h, const double angle, const bool suppress = false)
 	{
-		int cR1 = ::fpclassify(r1);
-		int cR2 = ::fpclassify(r2);
-		int cH = ::fpclassify(h);
-		int cA = ::fpclassify(angle);
+		int cR1 = std::fpclassify(r1);
+		int cR2 = std::fpclassify(r2);
+		int cH = std::fpclassify(h);
+		int cA = std::fpclassify(angle);
 
 		bool arenum = (cR1 != FP_NAN) && (cR2 != FP_NAN) && (cH != FP_NAN) && (cA != FP_NAN);
 		arenum &= (cR1 != FP_INFINITE) && (cR2 != FP_INFINITE) && (cH != FP_INFINITE) && (cA != FP_INFINITE);
@@ -135,9 +135,9 @@ namespace acamcad
 	bool CheckTorusParamOK(const AMCAX::Coord3& axis,
 		const double r1, const double r2, const double angle, const bool suppress = false)
 	{
-		int cR1 = ::fpclassify(r1);
-		int cR2 = ::fpclassify(r2);
-		int cA = ::fpclassify(angle);
+		int cR1 = std::fpclassify(r1);
+		int cR2 = std::fpclassify(r2);
+		int cA = std::fpclassify(angle);
 
 		bool arenum = (cR1 != FP_NAN) && (cR2 != FP_NAN) && (cA != FP_NAN)
 			&& (cR1 != FP_INFINITE) && (cR2 != FP_INFINITE) && (cA != FP_INFINITE);

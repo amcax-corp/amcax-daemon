@@ -18,7 +18,7 @@
 #include <QGuiApplication>
 #include "Windows/RibbonViewer.h"
 #include "SARibbonBar.h"
-#include <qtextcodec.h>
+//#include <qtextcodec.h>
 #include <QSharedMemory>
 
 int main(int argc, char** argv) {

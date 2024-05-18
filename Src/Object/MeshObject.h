@@ -8,6 +8,7 @@
 
 #include "AdapterObjectParent.h"
 #include <memory>
+#include "../ObjectDraw/ObjectDraw.h"
 
 /// 
 #define polymesh  AMCAX::SubD
